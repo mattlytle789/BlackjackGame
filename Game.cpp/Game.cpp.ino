@@ -57,14 +57,23 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   switch (gameState) {
+    // Pregame State
     case pregame :
       // printing game state for debugging 
       Serial.println(gameState);
+
       // transitioning to dealing state if the deal button is pressed
       if (dealButtonState == 1) {
         gameState = dealing;
       }
       break; 
+    // Dealing State
+    case dealing :
+      // printing game state for debugging
+      Serial.println(gameState);
+
+            
+      break;
   }
 }
 
