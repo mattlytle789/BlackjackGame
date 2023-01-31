@@ -24,6 +24,8 @@ Player player2;
 Player player3; 
 Player dealer; 
 Player *playerList;
+int playerInTurnIndex;
+Player playerInTurn;
 
 // misc variables
 volatile int player1PlayButtonState = 0;
@@ -73,6 +75,10 @@ void loop() {
       Serial.println(gameState);
 
             
+      break;
+    // PlayerAction State
+    case playerAction :
+      
       break;
   }
 }
