@@ -3,7 +3,7 @@ class Player {
         int number;
     public:
         Player() {
-
+            
         }
         Player(int num) {
             number = num;
