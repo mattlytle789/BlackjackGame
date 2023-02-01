@@ -26,6 +26,8 @@ Player dealer;
 Player *playerList;
 int playerInTurnIndex;
 Player playerInTurn;
+int dealOrder [4] = {1,2,3,0};
+bool playerStandFlag = false;
 
 // misc variables
 volatile int player1PlayButtonState = 0;
@@ -76,12 +78,30 @@ void loop() {
     case dealing :
       // printing game state for debugging
       Serial.println(gameState);
-
-            
+      // progressing through players
+      for (int count = 0; count < 2; count++) { 
+        for (int i = 1; i < 4; i++) {
+          /* Need to overload == perator
+          if (!(playerList[i] == NULL)) {
+            playerInTurnIndex = i;
+            // dealPlayer(playerInTurnIndex);
+          }*/
+        }
+        //dealDealer();
+      }     
       break;
     // PlayerAction State
     case playerAction :
-      
+      // progressing through players
+      for (int i = 1; i < 4; i++) {
+        playerInTurnIndex = i;
+        /* Display to player in turn 
+        displayTurn(playerInTurnIndex);
+        */
+        while(!playerStandFlag) {
+
+        }
+      }
       break;
   }
 }
