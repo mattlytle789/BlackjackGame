@@ -54,6 +54,9 @@ void setup() {
   // allocating memory for the player list
   playerList = new Player[4];
   playerList[0] = dealer;
+  for (int i = 1; i < 4; i++) {
+    playerList[i] = NULL;
+  }
 }
 
 void loop() {
