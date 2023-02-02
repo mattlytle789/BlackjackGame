@@ -78,23 +78,16 @@ void loop() {
     case dealing :
       // printing game state for debugging
       Serial.println(gameState);
-      // progressing through players
-      for (int count = 0; count < 2; count++) { 
-        for (int i = 1; i < 4; i++) {
-          /* Need to overload == perator
-          if (!(playerList[i] == NULL)) {
-            playerInTurnIndex = i;
-            // dealPlayer(playerInTurnIndex);
-          }*/
-        }
-        //dealDealer();
-      }     
+         
       break;
     // PlayerAction State
     case playerAction :
       // progressing through players
       for (int i = 1; i < 4; i++) {
         playerInTurnIndex = i;
+        if (&playerList[i] == NULL) {
+          continue;
+        }
         /* Display to player in turn 
         displayTurn(playerInTurnIndex);
         */
