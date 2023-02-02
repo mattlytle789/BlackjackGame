@@ -8,6 +8,13 @@ const int buttonPlayer1Play = 1;
 const int buttonPlayer2Play = 2;
 const int buttonPlayer3Play = 3;
 const int buttonDeal = 4;
+const int buttonPlayer1Stand = 5;
+const int buttonPlayer2Stand = 6;
+const int buttonPlayer3Stand = 7;
+const int buttonPlayer1Hit = 8;
+const int buttonPlayer2Hit = 9;
+const int buttonPlayer3Hit = 10;
+const int buttonClear = 11;
 
 // Variable Declarations
 // Game state enumeration
@@ -18,7 +25,7 @@ State_Type gameState = pregame; // Current state of the game :: initialized to P
 enum Action_Type {hit, stand};
 Action_Type actionSelected; // Action the player or dealer has chose to perform
 
-// Player objects
+// Player objects and variables
 Player player1; 
 Player player2;
 Player player3; 
@@ -44,12 +51,26 @@ void setup() {
   pinMode(buttonPlayer2Play, INPUT);
   pinMode(buttonPlayer3Play, INPUT);
   pinMode(buttonDeal, INPUT);
+  pinMode(buttonPlayer1Stand, INPUT);
+  pinMode(buttonPlayer2Stand, INPUT);
+  pinMode(buttonPlayer3Stand, INPUT);
+  pinMode(buttonPlayer1Hit, INPUT);
+  pinMode(buttonPlayer2Hit, INPUT);
+  pinMode(buttonPlayer3Hit, INPUT);
+  pinMode(buttonClear, INPUT);
 
   // attaching interrupts to buttons
   attachInterrupt(0, player1PlayButton, CHANGE);
   attachInterrupt(1, player2PlayButton, CHANGE);
   attachInterrupt(2, player3PlayButton, CHANGE);
   attachInterrupt(3, dealButton, CHANGE);
+  attachInterrupt(4, player1StandButton, CHANGE);
+  attachInterrupt(5, player2StandButton, CHANGE);
+  attachInterrupt(6, player3StandButton, CHANGE);
+  attachInterrupt(7, player1HitButton, CHANGE);
+  attachInterrupt(8, player2HitButton, CHANGE);
+  attachInterrupt(9, player3HitButton, CHANGE);
+  attachInterrupt(10, clearButton, CHANGE);
 
   // initializing the game state to the pregame state
   gameState = pregame;
@@ -85,7 +106,7 @@ void loop() {
       // progressing through players
       for (int i = 1; i < 4; i++) {
         playerInTurnIndex = i;
-        if (&playerList[i] == NULL) {
+        if (&playerList[playerInTurnIndex] == NULL) {
           continue;
         }
         /* Display to player in turn 
@@ -125,4 +146,32 @@ void player3PlayButton() {
 
 void dealButton() {
   dealButtonState = digitalRead(buttonDeal);
+}
+
+void player1StandButton() {
+
+}
+
+void player2StandButton() {
+  
+}
+
+void player3StandButton() {
+  
+}
+
+void player1HitButton() {
+  
+}
+
+void player2HitButton() {
+  
+}
+
+void player3HitButton() {
+  
+}
+
+void clearButton() {
+  
 }
