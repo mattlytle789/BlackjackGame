@@ -104,6 +104,9 @@ void loop() {
       break;
     // PlayerAction State
     case playerAction :
+      // printing game state for debugging 
+      Serial.println(gameState);
+      
       // progressing through players
       for (int i = 1; i < 4; i++) {
         playerInTurnIndex = i;
