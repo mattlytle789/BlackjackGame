@@ -150,6 +150,13 @@ void loop() {
       break;
     // ClearTable State
     case clearTable :
+      // resetting all flag variables
+      dealerStandFlag = false;
+      dealerBustFlag = false;
+      playerStandFlag = false;
+
+      // tranisitioning to pregame state
+      gameState = pregame;
       break;
   }
 }
