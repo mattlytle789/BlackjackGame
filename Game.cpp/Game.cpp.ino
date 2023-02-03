@@ -121,6 +121,15 @@ void loop() {
         }
       }
       break;
+    // DealerAction State
+    case dealerAction :
+      break;
+    // GameOver State
+    case gameOver :
+      break;
+    // ClearTable State
+    case clearTable :
+      break;
   }
 }
 
