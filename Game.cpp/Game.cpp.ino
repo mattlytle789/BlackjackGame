@@ -36,6 +36,8 @@ int playerInTurnIndex;
 Player playerInTurn;
 int dealOrder [4] = {1,2,3,0};
 bool playerStandFlag = false;
+bool dealerStandFlag = false;
+bool dealerBustFlag = false;
 
 // misc variables
 volatile int player1PlayButtonState = 0;
@@ -123,6 +125,25 @@ void loop() {
       break;
     // DealerAction State
     case dealerAction :
+      // looping until the dealer has stood or busted
+      while (!dealerStandFlag || !dealerBustFlag) {
+        // dealer's hand is greater than 21 :: dealer busts :: tranisition to gameOver state
+        if (playerList[1].calculateHandTotal() > 21) {
+          dealerBustFlag = true;
+          gameState = gameOver;
+          break;
+        }
+        // dealer's hand is 16 or less :: dealer must hit
+        else if (playerList[1].calculateHandTotal() <= 16) {
+
+        }
+        // dealer's hand is 17 or greater :: dealer must stand :: tranistion to gameOver state
+        else if (playerList[1].calculateHandTotal() >= 17) {
+          dealerStandFlag = true;
+          gameState = gameOver;
+          break;
+        }
+      }
       break;
     // GameOver State
     case gameOver :

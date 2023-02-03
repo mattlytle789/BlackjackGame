@@ -1,12 +1,18 @@
 class Player {
     private: 
         int number;
+        int hand[10];
     public:
         Player() {
-
+            for (int i = 0; i < 10; i++) {
+                hand[i] = 0;
+            }
         }
         Player(int num) {
             number = num;
+            for (int i = 0; i < 10; i++) {
+                hand[i] = 0;
+            }
         }
         // getter methods
         int getNumber() {
@@ -28,5 +34,13 @@ class Player {
                 return true;
             }
             return false;
+        }
+        // methods
+        int calculateHandTotal() {
+            int handTotal = 0;
+            for (int i = 0; i < 10; i++) {
+                handTotal += hand[i];
+            }
+            return handTotal;
         }
 };
