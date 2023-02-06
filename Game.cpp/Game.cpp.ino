@@ -93,7 +93,7 @@ void loop() {
       // printing game state for debugging 
       Serial.println(gameState);
 
-      // transitioning to dealing state if the deal button is pressed
+      // transitioning to Dealing State if the deal button is pressed
       if (dealButtonState == 1) {
         gameState = dealing;
       }
@@ -103,6 +103,11 @@ void loop() {
       // printing game state for debugging
       Serial.println(gameState);
          
+      // calling the dealPlayers method to deal all players
+      // dealPlayers(playerList);
+
+      // transitioning to PlayerAction State
+      gameState = playerAction;
       break;
     // PlayerAction State
     case playerAction :
@@ -122,6 +127,9 @@ void loop() {
 
         }
       }
+
+      // transitioning to Dealer Action State whne all players have taken their turn
+      gameState = dealerAction;
       break;
     // DealerAction State
     case dealerAction :
