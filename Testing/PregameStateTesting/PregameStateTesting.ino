@@ -1,29 +1,24 @@
 #include "src/Player.h"
 
-int buttonPlayer1Play = 2;
-int buttonPlayer2Play = 3;
-volatile int button1PlayState = 0;
-volatile int button2PlayState = 0;
-
 Player player1; 
 Player player2;
 Player player3; 
 Player dealer; 
 Player *playerList;
+int numPlayers = 0;
+
+// Flag for deal button 
+bool dealButtonFlag = false;
+
+char input = NULL;
 
 // Game state enumeration
-enum State_Type {pregame};
+enum State_Type {pregame, dealing};
 State_Type gameState = pregame; // Current state of the game :: initialized to Pregame state
 
 
 void setup() {
   Serial.begin(9600);
-
-  pinMode(buttonPlayer1Play, INPUT);
-  pinMode(buttonPlayer2Play, INPUT);
-
-  attachInterrupt(0,playPlayer1,CHANGE);
-  attachInterrupt(0,playPlayer2,CHANGE);
   
   playerList = new Player[4];
   playerList[0] = dealer;
@@ -32,33 +27,53 @@ void setup() {
   }
 
   gameState = pregame;
-
 }
 
 void loop() {
   switch (gameState) {
+    // Pregame State
     case pregame :
-      for (int i = 1; i < 3; i++) {
+      Serial.println("Pregame State");
+      while (!dealButtonFlag) {
+        if (Serial.available()) {
+          input = Serial.read();
+          if (input == '1') {
+            playPlayer1();
+          }
+          else if (input == '2') {
+            playPlayer2();
+          }
+          else if (input == '3') {
+            dealButtonFlag = true;
+          }
+          input = NULL;
+        }
+      }
+      Serial.println("Players in List: ");
+      for (int i = 1; i < numPlayers+1; i++) {
         Serial.println(playerList[i].getNumber());
       }
-    break;
+      Serial.println("Pregame State Over");
+      gameState = dealing;
+      break;
+    // Dealing state
+    case dealing :
+
+      break;
   }
 
 }
 
 void playPlayer1() {
-  button1PlayState = digitalRead(buttonPlayer1Play);
-  Serial.println("player 1 play button");
-  if (button1PlayState == 1) {
-    player1 = Player(1);
-    playerList[1] = player1;
-  }
+  Serial.println("Player 1 play button pressed");
+  player1 = Player(1);
+  playerList[1] = player1;
+  numPlayers++;
 }
 
 void playPlayer2() {
-  button2PlayState = digitalRead(buttonPlayer2Play);
-  if (button2PlayState == 1) {
-    player2 = Player(2);
-    playerList[2] = player2;
-  }
+  Serial.println("Player 2 play button pressed");
+  player2 = Player(2);
+  playerList[2] = player2;
+  numPlayers++;
 }
