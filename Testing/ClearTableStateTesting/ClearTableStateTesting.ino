@@ -40,7 +40,7 @@ void loop() {
       while (!dealButtonFlag) {
         if (Serial.available()) {
           input = Serial.read();
-          if (input == '1') {4
+          if (input == '1') {
             playPlayer1();
           }
           else if (input == '2') {
@@ -53,8 +53,10 @@ void loop() {
         }
       }
       Serial.println("Players in List: ");
-      for (int i = 0; i < numPlayers; i++) {
-        Serial.println(playerList[i].getNumber());
+      for (int i = 0; i < 3; i++) {
+        if (playerList[i].getNumber() != 0) {
+          Serial.println(playerList[i].getNumber());
+        }
       }
       Serial.println("Pregame State Over");
       gameState = dealing;
@@ -69,34 +71,36 @@ void loop() {
     // Player Action state
     case playerAction :
       Serial.println("Player Action State");
-      for (int i = 0; i < numPlayers; i++) {
-        Serial.print("Player ");
-        Serial.print(playerList[i].getNumber());
-        Serial.println(" turn start");
-        while (!turnOverFlag) {
-          if (playerList[i].calculateHandTotal() > 21) {
-            playerBust(i);
-          }
-          if (Serial.available()) {
-            input = Serial.read();
-            if (input == '4') {
-              Serial.print("Player ");
-              Serial.print(playerList[i].getNumber());
-              Serial.println(" performed hit action");
-              playerHit(i);
+      for (int i = 0; i < 3; i++) {
+        if (playerList[i].getNumber() != 0) {
+          Serial.print("Player ");
+          Serial.print(playerList[i].getNumber());
+          Serial.println(" turn start");
+          while (!turnOverFlag) {
+            if (playerList[i].calculateHandTotal() > 21) {
+              playerBust(i);
             }
-            else if (input == '5') {
-              Serial.print("Player ");
-              Serial.print(playerList[i].getNumber());
-              Serial.println(" performed stand action");
-              turnOverFlag = true;
+            if (Serial.available()) {
+              input = Serial.read();
+              if (input == '4') {
+                Serial.print("Player ");
+                Serial.print(playerList[i].getNumber());
+                Serial.println(" performed hit action");
+                playerHit(i);
+              }
+              else if (input == '5') {
+                Serial.print("Player ");
+                Serial.print(playerList[i].getNumber());
+                Serial.println(" performed stand action");
+                turnOverFlag = true;
+              }
             }
           }
+          Serial.print("Player ");
+          Serial.print(playerList[i].getNumber());
+          Serial.println(" turn over");
+          turnOverFlag = false;
         }
-      Serial.print("Player ");
-      Serial.print(playerList[i].getNumber());
-      Serial.println(" turn over");
-      turnOverFlag = false;
       }
       Serial.println("Player Action State Over");
       gameState = dealerAction;    
@@ -121,21 +125,26 @@ void loop() {
     // Game Over State
     case gameOver :
       Serial.println("Game Over State");
-      for (int i = 0; i < numPlayers; i++) {
-        Serial.print("Dealer total: ");
-        Serial.println(playerList[4].calculateHandTotal());
-        Serial.print("Player ");
-        Serial.print(i+1);
-        Serial.print(" total: ");
-        Serial.println(playerList[i].calculateHandTotal());
-        if (playerList[i].calculateHandTotal() > playerList[4].calculateHandTotal()) {
-          playerWin(i);
-        }
-        else if (playerList[i].calculateHandTotal() < playerList[4].calculateHandTotal()) {
-          playerLose(i);
-        }
-        else if (playerList[i].calculateHandTotal() == playerList[4].calculateHandTotal()) {
-          playerPush(i);
+      for (int i = 0; i < 3; i++) {
+        if (playerList[i].getNumber() != 0) {
+          Serial.print("Dealer total: ");
+          Serial.println(playerList[4].calculateHandTotal());
+          Serial.print("Player ");
+          Serial.print(i+1);
+          Serial.print(" total: ");
+          Serial.println(playerList[i].calculateHandTotal());
+          if (playerList[i].calculateHandTotal() > 21) {
+            playerBustGameOver(i);
+          }
+          else if (playerList[i].calculateHandTotal() > playerList[4].calculateHandTotal()) {
+            playerWin(i);
+          }
+          else if (playerList[i].calculateHandTotal() < playerList[4].calculateHandTotal()) {
+            playerLose(i);
+          }
+          else if (playerList[i].calculateHandTotal() == playerList[4].calculateHandTotal()) {
+            playerPush(i);
+          }
         }
       }
       Serial.println("Game Over State Over");
@@ -177,20 +186,22 @@ void playPlayer2() {
 
 void dealCards() {
   Serial.println("Dealing Cards to Players");
-  for (int i = 0; i < numPlayers; i++) {
-    Serial.print("Dealing Player ");
-    Serial.println(i+1);
-    if (i == 0) {
-      playerList[i].addCard(5);
-      playerList[i].addCard(6);
+  for (int i = 0; i < 3; i++) {
+    if (playerList[i].getNumber() != 0) {
+      Serial.print("Dealing Player ");
+      Serial.println(i+1);
+      if (i == 0) {
+        playerList[i].addCard(5);
+        playerList[i].addCard(6);
+      }
+      else if (i == 1) {
+        playerList[i].addCard(8);
+        playerList[i].addCard(8);
+      }
+      Serial.print("Player hand total: ");
+      Serial.println(playerList[i].calculateHandTotal());
+      delay(5000);
     }
-    else if (i == 1) {
-      playerList[i].addCard(8);
-      playerList[i].addCard(8);
-    }
-    Serial.print("Player hand total: ");
-    Serial.println(playerList[i].calculateHandTotal());
-    delay(5000);
   }
   Serial.println("Dealing Cards to Dealer");
   playerList[4].addCard(10);
@@ -248,6 +259,12 @@ void playerPush(int playerNumber) {
   Serial.print("Player ");
   Serial.print(playerNumber+1);
   Serial.println(" pushes!");
+}
+
+void playerBustGameOver(int playerNumber) {
+  Serial.print("Player ");
+  Serial.print(playerNumber+1);
+  Serial.println(" busts!");
 }
 
 void clearTableProcess() {
