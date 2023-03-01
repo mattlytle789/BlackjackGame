@@ -1,34 +1,62 @@
-
 #include "src/Player.h"
+#include "src/Constants.h"
 
-Player player1; 
-Player player2;
-Player player3; 
-Player dealer; 
-Player *playerList;
-int numPlayers = 0;
+/***** Player Variables **************/
+Player player1; // Player 1 player object
+Player player2; // Player 2 player object
+Player player3; // Player 3 player object
+Player dealer; // Dealer player object
+Player *playerList; // Array of all players and dealer :: Player 1, index 0; Player 2, index 1; Player 3, index 2; Dealer, index 4
+int numPlayers = 0; // number of players in current game
+/*************************************/
 
-// Flags 
-bool dealButtonFlag = false;
-bool turnOverFlag = false;
-bool dealerTurnOverFlag = false;
+/***** Flag Variables ****************/
+bool dealButtonFlag = false; // flag for deal button being pressed :: true if pressed; false otherwise
+bool turnOverFlag = false; // flag for a player's turn ending :: true when player stands; false otherwise
+bool dealerTurnOverFlag = false; // flag for dealer's turn ending :: true when dealer stands; false otherwise
+bool player1JoinedFlag = false; // flag for if player 1 joined the game :: true when joined; false otherwise
+bool player2JoinedFlag = false; // flag for if player 2 joined the game :: true when joined; false otherwise
+bool player3JoinedFlag = false; // flag for if player 2 joined the game :: true when joined; false otherwise
+/*************************************/
 
+/***** Button State Variables ********/
+volatile int player1PlayButtonState = 0; // state of player 1 play button
+volatile int player2PlayButtonState = 0; // state of player 2 play button
+volatile int player3PlayButtonState = 0; // state of player 3 play button
+/*************************************/
+
+/***** Testing Variables *************/
 char input = NULL;
+/*************************************/
 
-// Game state enumeration
-enum State_Type {pregame, dealing, playerAction, dealerAction, gameOver, clearTable};
-State_Type gameState = pregame; // Current state of the game :: initialized to Pregame state
-
+/***** Game State Variables **********/
+enum State_Type {pregame, dealing, playerAction, dealerAction, gameOver, clearTable}; // enumeration of game states
+State_Type gameState = pregame; // Current state of the game :: initialized to Pregame state 
+/*************************************/
 
 void setup() {
+  // For testing purposes
   Serial.begin(9600);
   
+  // allocating memory for player list and filling with null
   playerList = new Player[4];
   playerList[4] = dealer;
   for (int i = 1; i < 3; i++) {
     playerList[i] = NULL;
   }
 
+  // setting input pins 
+  pinMode(player1PlayButton, INPUT_PULLUP);
+  pinMode(player2PlayButton, INPUT_PULLUP);
+  pinMode(player3PlayButton, INPUT_PULLUP);
+
+  // setting interrupts
+  PCICR |= B00000100; // Opening Port D
+  PCMSK2 |= B00010000; // setting pin 4 to have interrupt
+  PCMSK2 |= B00100000; // setting pin 5 to have interrupt
+  PCMSK2 |= B01000000; // setting pin 6 to have interrupt
+
+  // initializing the game state to pregame
   gameState = pregame;
 }
 
@@ -36,22 +64,12 @@ void loop() {
   switch (gameState) {
     // Pregame State
     case pregame :
-      Serial.println("Pregame State");
+      Serial.println("Pregame State"); // for testing purposes
+      // Waiting for the deal button to be pressed
       while (!dealButtonFlag) {
-        if (Serial.available()) {
-          input = Serial.read();
-          if (input == '1') {
-            playPlayer1();
-          }
-          else if (input == '2') {
-            playPlayer2();
-          }
-          else if (input == '3') {
-            dealButtonFlag = true;
-          }
-          input = NULL;
-        }
+        
       }
+      // for testing purposes
       Serial.println("Players in List: ");
       for (int i = 0; i < 3; i++) {
         if (playerList[i].getNumber() != 0) {
@@ -59,6 +77,8 @@ void loop() {
         }
       }
       Serial.println("Pregame State Over");
+
+      // transitioning to dealing state
       gameState = dealing;
       break;
     // Dealing state
@@ -157,6 +177,9 @@ void loop() {
       turnOverFlag = false;
       dealerTurnOverFlag = false;
       dealButtonFlag = false;
+      player1JoinedFlag = false;
+      player2JoinedFlag = false;
+      player3JoinedFlag = false;
       delete[] playerList;
       playerList = new Player[4];
       playerList[4] = dealer;
@@ -170,6 +193,37 @@ void loop() {
   }
 }
 
+// Interrupt method for pins on Port D :: used for play buttons 
+ISR (PCINT2_vect) {
+  // read each players play button 
+  player1PlayButtonState = digitalRead(player1PlayButton);
+  player2PlayButtonState = digitalRead(player2PlayButton);
+  player3PlayButtonState = digitalRead(player3PlayButton);
+  // decide which play button was pressed and add the player
+  if (!player1JoinedFlag && player1PlayButtonState == 1) {
+    Serial.println("button 1 pressed");
+    player1 = Player(1);
+    playerList[0] = player1;
+    numPlayers++;
+    player1JoinedFlag = true;
+  }
+  if (!player2JoinedFlag && player2PlayButtonState == 1) {
+    Serial.println("button 2 pressed");
+    player2 = Player(2);
+    playerList[1] = player2;
+    numPlayers++;
+    player2JoinedFlag = true;
+  }
+  if (!player3JoinedFlag && player3PlayButtonState == 1) {
+    Serial.println("button 3 pressed");
+    player3 = Player(3);
+    playerList[2] = player3;
+    numPlayers++;
+    player3JoinedFlag = true;
+  }
+}
+
+/* Methods for testing
 void playPlayer1() {
   Serial.println("Player 1 play button pressed");
   player1 = Player(1);
@@ -183,6 +237,7 @@ void playPlayer2() {
   playerList[1] = player2;
   numPlayers++;
 }
+*/
 
 void dealCards() {
   Serial.println("Dealing Cards to Players");
