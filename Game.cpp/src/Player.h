@@ -2,22 +2,28 @@ class Player {
     private: 
         int number;
         int hand[10];
+		int handIndex;
     public:
         Player() {
             for (int i = 0; i < 10; i++) {
                 hand[i] = 0;
             }
+			handIndex = 0;
         }
         Player(int num) {
             number = num;
             for (int i = 0; i < 10; i++) {
                 hand[i] = 0;
             }
+			handIndex = 0;
         }
         // getter methods
         int getNumber() {
             return number;
         }
+		int getCard(int index) {
+			return hand[index];
+		}
         // mutator methods
         void setNumber(int num) {
             number = num;
@@ -43,4 +49,8 @@ class Player {
             }
             return handTotal;
         }
+		void addCard(int num) {
+			hand[handIndex] = num;
+			handIndex++;
+		}
 };
