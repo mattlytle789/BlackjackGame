@@ -23,6 +23,7 @@ bool player3JoinedFlag = false; // flag for if player 2 joined the game :: true 
 volatile int player1PlayButtonState = 0; // state of player 1 play button
 volatile int player2PlayButtonState = 0; // state of player 2 play button
 volatile int player3PlayButtonState = 0; // state of player 3 play button
+volatile int dealButtonState = 0; // state of the deal button
 /*************************************/
 
 /***** Testing Variables *************/
@@ -49,12 +50,15 @@ void setup() {
   pinMode(player1PlayButton, INPUT_PULLUP);
   pinMode(player2PlayButton, INPUT_PULLUP);
   pinMode(player3PlayButton, INPUT_PULLUP);
+  pinMode(dealButton, INPUT_PULLUP);
 
   // setting interrupts
   PCICR |= B00000100; // Opening Port D
   PCMSK2 |= B00010000; // setting pin 4 to have interrupt
   PCMSK2 |= B00100000; // setting pin 5 to have interrupt
   PCMSK2 |= B01000000; // setting pin 6 to have interrupt
+  PCICR |= B00000001; // Opening Port B
+  PCMSK0 |= B00000001; // stting pin 8 to have interrupt
 
   // initializing the game state to pregame
   gameState = pregame;
@@ -65,9 +69,8 @@ void loop() {
     // Pregame State
     case pregame :
       Serial.println("Pregame State"); // for testing purposes
-      // Waiting for the deal button to be pressed
       while (!dealButtonFlag) {
-        
+        // waiting for the deal button to be pressed
       }
       // for testing purposes
       Serial.println("Players in List: ");
@@ -220,6 +223,14 @@ ISR (PCINT2_vect) {
     playerList[2] = player3;
     numPlayers++;
     player3JoinedFlag = true;
+  }
+}
+
+// interrupt method for pins on Port C :: used for dealing and clear table buttons
+ISR (PCINT0_vect) {
+  dealButtonState = digitalRead(dealButton);
+  if (numPlayers > 0 && dealButtonState == 1) {
+    dealButtonFlag = true;
   }
 }
 
