@@ -26,6 +26,7 @@ volatile int player3PlayButtonState = 0; // state of player 3 play button
 volatile int dealButtonState = 0; // state of the deal button
 volatile int hitButtonState = 0; // state of the hit button
 volatile int standButtonState = 0; // state of the stand button
+volatile int clearButtonState = 0; // state of the clear button
 /*************************************/
 
 /***** Testing Variables *************/
@@ -55,6 +56,7 @@ void setup() {
   pinMode(dealButton, INPUT_PULLUP);
   pinMode(hitButton, INPUT_PULLUP);
   pinMode(standButton, INPUT_PULLUP);
+  pinMode(clearButton, INPUT_PULLUP);
 
   // setting output pins
   pinMode(player1ControllerPower, OUTPUT);
@@ -189,19 +191,31 @@ void loop() {
           }
         }
       }
+      while (clearButtonState != 1) {
+        clearButtonState = digitalRead(clearButton);
+      }
       Serial.println("Game Over State Over");
       gameState = clearTable;
       break;
     // Clear Table State
     case clearTable :
-      Serial.println("Clear Table State");
       clearTableProcess();
+      // resetting all flag variables to false
       turnOverFlag = false;
       dealerTurnOverFlag = false;
       dealButtonFlag = false;
       player1JoinedFlag = false;
       player2JoinedFlag = false;
       player3JoinedFlag = false;
+      // resetting all button state variables 
+      player1PlayButtonState = 0;
+      player2PlayButtonState = 0;
+      player3PlayButtonState = 0;
+      dealButtonState = 0;
+      hitButtonState = 0;
+      standButtonState = 0;
+      clearButtonState = 0;
+      // resetting the player list
       delete[] playerList;
       playerList = new Player[4];
       playerList[4] = dealer;
@@ -247,11 +261,13 @@ ISR (PCINT2_vect) {
 
 // interrupt method for pins on Port C :: used for dealing and clear table buttons
 ISR (PCINT0_vect) {
-  dealButtonState = digitalRead(dealButton);
-  if (numPlayers > 0 && dealButtonState == 1) {
-    Serial.println("deal button pressed");
-    dealButtonFlag = true;
-    Serial.println(dealButtonFlag);
+  if (gameState == pregame) {
+    dealButtonState = digitalRead(dealButton);
+    if (numPlayers > 0 && dealButtonState == 1) {
+      Serial.println("deal button pressed");
+      dealButtonFlag = true;
+      Serial.println(dealButtonFlag);
+    }
   }
 }
 
