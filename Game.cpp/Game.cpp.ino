@@ -24,6 +24,8 @@ volatile int player1PlayButtonState = 0; // state of player 1 play button
 volatile int player2PlayButtonState = 0; // state of player 2 play button
 volatile int player3PlayButtonState = 0; // state of player 3 play button
 volatile int dealButtonState = 0; // state of the deal button
+volatile int hitButtonState = 0; // state of the hit button
+volatile int standButtonState = 0; // state of the stand button
 /*************************************/
 
 /***** Testing Variables *************/
@@ -51,6 +53,13 @@ void setup() {
   pinMode(player2PlayButton, INPUT_PULLUP);
   pinMode(player3PlayButton, INPUT_PULLUP);
   pinMode(dealButton, INPUT_PULLUP);
+  pinMode(hitButton, INPUT_PULLUP);
+  pinMode(standButton, INPUT_PULLUP);
+
+  // setting output pins
+  pinMode(player1ControllerPower, OUTPUT);
+  pinMode(player2ControllerPower, OUTPUT);
+  pinMode(player3ControllerPower, OUTPUT);
 
   // setting interrupts
   PCICR |= B00000100; // Opening Port D
@@ -58,7 +67,7 @@ void setup() {
   PCMSK2 |= B00100000; // setting pin 5 to have interrupt
   PCMSK2 |= B01000000; // setting pin 6 to have interrupt
   PCICR |= B00000001; // Opening Port B
-  PCMSK0 |= B00000001; // stting pin 8 to have interrupt
+  PCMSK0 |= B00000001; // setting pin 8 to have interrupt
 
   // initializing the game state to pregame
   gameState = pregame;
@@ -71,6 +80,7 @@ void loop() {
       Serial.println("Pregame State"); // for testing purposes
       while (!dealButtonFlag) {
         // waiting for the deal button to be pressed
+        delay(500);
       }
       // for testing purposes
       Serial.println("Players in List: ");
@@ -99,29 +109,38 @@ void loop() {
           Serial.print("Player ");
           Serial.print(playerList[i].getNumber());
           Serial.println(" turn start");
+          switch (i) {
+            case 0 : // Turning on player 1 controller
+              digitalWrite(player1ControllerPower, HIGH);
+              digitalWrite(player2ControllerPower, LOW);
+              digitalWrite(player3ControllerPower, LOW);
+              break;
+            case 1 : // Turning on player 2 controller
+              digitalWrite(player1ControllerPower, LOW);
+              digitalWrite(player2ControllerPower, HIGH);
+              digitalWrite(player3ControllerPower, LOW);
+              break;
+            case 2 : // Turning on player 3 controller
+              digitalWrite(player1ControllerPower, LOW);
+              digitalWrite(player2ControllerPower, LOW);
+              digitalWrite(player3ControllerPower, HIGH);
+              break;
+          }
+          // waiting for a player to stand
           while (!turnOverFlag) {
             if (playerList[i].calculateHandTotal() > 21) {
               playerBust(i);
             }
-            if (Serial.available()) {
-              input = Serial.read();
-              if (input == '4') {
-                Serial.print("Player ");
-                Serial.print(playerList[i].getNumber());
-                Serial.println(" performed hit action");
-                playerHit(i);
-              }
-              else if (input == '5') {
-                Serial.print("Player ");
-                Serial.print(playerList[i].getNumber());
-                Serial.println(" performed stand action");
-                turnOverFlag = true;
-              }
+            // reading the state of the action buttons
+            hitButtonState = digitalRead(hitButton);
+            standButtonState = digitalRead(standButton);
+            if (hitButtonState == 1) { // player hit call hit method
+              playerHit(i);
+            }
+            if (standButtonState == 1) { // player stand call stand method
+              playerStand(i);
             }
           }
-          Serial.print("Player ");
-          Serial.print(playerList[i].getNumber());
-          Serial.println(" turn over");
           turnOverFlag = false;
         }
       }
@@ -230,7 +249,9 @@ ISR (PCINT2_vect) {
 ISR (PCINT0_vect) {
   dealButtonState = digitalRead(dealButton);
   if (numPlayers > 0 && dealButtonState == 1) {
+    Serial.println("deal button pressed");
     dealButtonFlag = true;
+    Serial.println(dealButtonFlag);
   }
 }
 
@@ -280,10 +301,17 @@ void dealCards() {
 void playerHit(int playerNumber) {
   Serial.println("Dealing a card to player");
   playerList[playerNumber].addCard(10);
-  delay(10000);
+  delay(5000);
   Serial.print("Player ");
   Serial.print(playerNumber+1);
   Serial.println(" turn");
+}
+
+void playerStand(int playerNumber) {
+  Serial.print("Player ");
+  Serial.print(playerNumber+1);
+  Serial.println(" stands, turn over");
+  turnOverFlag = true;
 }
 
 void playerBust(int playerNumber) {
