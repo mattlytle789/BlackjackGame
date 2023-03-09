@@ -46,9 +46,6 @@ LiquidCrystal_I2C lcd1(0x27, 16, 2);
 /*************************************/
 
 void setup() {
-  // For testing purposes
-  Serial.begin(9600);
-  
   // allocating memory for player list and filling with null
   playerList = new Player[4];
   playerList[4] = dealer;
@@ -58,7 +55,6 @@ void setup() {
 
   // initializing LCD Display
   lcd1.init();
-  lcd1.begin(16,2);
   lcd1.clear();
   lcd1.backlight();
 
@@ -92,7 +88,6 @@ void loop() {
   switch (gameState) {
     // Pregame State
     case pregame :
-      Serial.println("Pregame State"); // for testing purposes
       while (!dealButtonFlag) {
         // waiting for the deal button to be pressed
         if (player1JoinedFlag && !player1JoinedDisplayFlag) {
@@ -101,33 +96,19 @@ void loop() {
         }
         delay(500);
       }
-      // for testing purposes
-      Serial.println("Players in List: ");
-      for (int i = 0; i < 3; i++) {
-        if (playerList[i].getNumber() != 0) {
-          Serial.println(playerList[i].getNumber());
-        }
-      }
-      Serial.println("Pregame State Over");
 
       // transitioning to dealing state
       gameState = dealing;
       break;
     // Dealing state
     case dealing :
-      Serial.println("Dealing State Begin");
       dealCards();
-      Serial.println("Dealing State Over");
       gameState = playerAction;
       break;
     // Player Action state
     case playerAction :
-      Serial.println("Player Action State");
       for (int i = 0; i < 3; i++) {
         if (playerList[i].getNumber() != 0) {
-          Serial.print("Player ");
-          Serial.print(playerList[i].getNumber());
-          Serial.println(" turn start");
           switch (i) {
             case 0 : // Turning on player 1 controller
               digitalWrite(player1ControllerPower, HIGH);
@@ -163,12 +144,10 @@ void loop() {
           turnOverFlag = false;
         }
       }
-      Serial.println("Player Action State Over");
       gameState = dealerAction;    
       break;
     // Dealer Action State
     case dealerAction :
-      Serial.println("Dealer Action State");
       while (!dealerTurnOverFlag) {
         if (playerList[4].calculateHandTotal() > 21) {
           dealerBust();
@@ -180,20 +159,12 @@ void loop() {
           dealerHit();
         }
       }
-      Serial.println("Dealer Action State Over");
       gameState = gameOver;
       break;
     // Game Over State
     case gameOver :
-      Serial.println("Game Over State");
       for (int i = 0; i < 3; i++) {
         if (playerList[i].getNumber() != 0) {
-          Serial.print("Dealer total: ");
-          Serial.println(playerList[4].calculateHandTotal());
-          Serial.print("Player ");
-          Serial.print(i+1);
-          Serial.print(" total: ");
-          Serial.println(playerList[i].calculateHandTotal());
           if (playerList[i].calculateHandTotal() > 21) {
             playerBustGameOver(i);
           }
@@ -211,7 +182,6 @@ void loop() {
       while (clearButtonState != 1) {
         clearButtonState = digitalRead(clearButton);
       }
-      Serial.println("Game Over State Over");
       gameState = clearTable;
       break;
     // Clear Table State
@@ -224,7 +194,6 @@ void loop() {
       player1JoinedFlag = false;
       player2JoinedFlag = false;
       player3JoinedFlag = false;
-      player1JoinedDisplayFlag = false;
       // resetting all button state variables 
       player1PlayButtonState = 0;
       player2PlayButtonState = 0;
@@ -241,7 +210,6 @@ void loop() {
         playerList[i] = NULL;
       }
       numPlayers = 0;
-      Serial.println("Clear Table State Over");
       gameState = pregame;
       break;
   }
@@ -255,21 +223,18 @@ ISR (PCINT2_vect) {
   player3PlayButtonState = digitalRead(player3PlayButton);
   // decide which play button was pressed and add the player
   if (!player1JoinedFlag && player1PlayButtonState == 1) {
-    Serial.println("button 1 pressed");
     player1 = Player(1);
     playerList[0] = player1;
     numPlayers++;
     player1JoinedFlag = true;
   }
   if (!player2JoinedFlag && player2PlayButtonState == 1) {
-    Serial.println("button 2 pressed");
     player2 = Player(2);
     playerList[1] = player2;
     numPlayers++;
     player2JoinedFlag = true;
   }
   if (!player3JoinedFlag && player3PlayButtonState == 1) {
-    Serial.println("button 3 pressed");
     player3 = Player(3);
     playerList[2] = player3;
     numPlayers++;
@@ -282,21 +247,22 @@ ISR (PCINT0_vect) {
   if (gameState == pregame) {
     dealButtonState = digitalRead(dealButton);
     if (numPlayers > 0 && dealButtonState == 1) {
-      Serial.println("deal button pressed");
       dealButtonFlag = true;
     }
   }
 }
 
 void displayPlayerJoined(int playerNumber) {
-  switch (playerNumber) {
+  lcd1.setCursor(0,0);
+  lcd1.print("Joined");
+  /*switch (playerNumber) {
     case 0 :
       lcd1.setCursor(0,0);
       lcd1.print("Joined");
       break;
     default :
       break;
-  }
+  }*/
 }
 
 void displayPlayerHand(int playerNumber) {
@@ -324,11 +290,8 @@ void playPlayer2() {
 */
 
 void dealCards() {
-  Serial.println("Dealing Cards to Players");
   for (int i = 0; i < 3; i++) {
     if (playerList[i].getNumber() != 0) {
-      Serial.print("Dealing Player ");
-      Serial.println(i+1);
       if (i == 0) {
         playerList[i].addCard(5);
         playerList[i].addCard(6);
@@ -337,83 +300,49 @@ void dealCards() {
         playerList[i].addCard(8);
         playerList[i].addCard(8);
       }
-      Serial.print("Player hand total: ");
-      Serial.println(playerList[i].calculateHandTotal());
       delay(5000);
     }
   }
-  Serial.println("Dealing Cards to Dealer");
-  playerList[4].addCard(10);
-  playerList[4].addCard(2);
-  Serial.print("Dealer hand total: ");
-  Serial.println(playerList[4].calculateHandTotal());
-  delay(5000);
 }
 
 void playerHit(int playerNumber) {
-  Serial.println("Dealing a card to player");
   playerList[playerNumber].addCard(10);
   delay(5000);
-  Serial.print("Player ");
-  Serial.print(playerNumber+1);
-  Serial.println(" turn");
 }
 
 void playerStand(int playerNumber) {
-  Serial.print("Player ");
-  Serial.print(playerNumber+1);
-  Serial.println(" stands, turn over");
   turnOverFlag = true;
 }
 
 void playerBust(int playerNumber) {
-  Serial.print("Player ");
-  Serial.print(playerNumber+1);
-  Serial.println(" busts, turn over");
   turnOverFlag = true;
 }
 
 void dealerHit() {
-  Serial.println("Dealer Hit, deal a card");
   playerList[4].addCard(5);
   delay(5000);
 }
 
 void dealerStand() {
-  Serial.println("Dealer stand, turn over");
   dealerTurnOverFlag = true;
 }
 
 void dealerBust() {
-  Serial.println("Dealer bust, turn over");
   dealerTurnOverFlag = true;
 }
 
 void playerWin(int playerNumber) {
-  Serial.print("Player ");
-  Serial.print(playerNumber+1);
-  Serial.println(" wins!");
 }
 
 void playerLose(int playerNumber) {
-  Serial.print("Player ");
-  Serial.print(playerNumber+1);
-  Serial.println(" loses!");
 }
 
 void playerPush(int playerNumber) {
-  Serial.print("Player ");
-  Serial.print(playerNumber+1);
-  Serial.println(" pushes!");
 }
 
 void playerBustGameOver(int playerNumber) {
-  Serial.print("Player ");
-  Serial.print(playerNumber+1);
-  Serial.println(" busts!");
 }
 
 void clearTableProcess() {
-  Serial.println("Clearing Table");
   delay(5000);
 }
