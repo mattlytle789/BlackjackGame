@@ -20,6 +20,8 @@ bool player1JoinedFlag = false; // flag for if player 1 joined the game :: true 
 bool player2JoinedFlag = false; // flag for if player 2 joined the game :: true when joined; false otherwise
 bool player3JoinedFlag = false; // flag for if player 2 joined the game :: true when joined; false otherwise
 bool player1JoinedDisplayFlag = false; // flag for if player 1's join message has been displayed :: true when displayed, false otherwise
+bool player2JoinedDisplayFlag = false; // flag for if player 2's join message has been displayed :: true when displayed, false otherwise
+bool player3JoinedDisplayFlag = false; // flag for if player 3's join message has been displayed :: true when displayed, false otherwise
 /*************************************/
 
 /***** Button State Variables ********/
@@ -43,6 +45,8 @@ State_Type gameState = pregame; // Current state of the game :: initialized to P
 
 /***** LCD Display Variables *********/
 LiquidCrystal_I2C lcd1(0x27, 16, 2);
+LiquidCrystal_I2C lcd2(0x26, 16, 2);
+LiquidCrystal_I2C lcd3(0x25, 16, 2);
 /*************************************/
 
 void setup() {
@@ -58,9 +62,14 @@ void setup() {
 
   // initializing LCD Display
   lcd1.init();
-  lcd1.begin(16,2);
   lcd1.clear();
   lcd1.backlight();
+  lcd2.init();
+  lcd2.clear();
+  lcd2.backlight();
+  lcd3.init();
+  lcd3.clear();
+  lcd3.backlight();
 
   // setting input pins 
   pinMode(player1PlayButton, INPUT_PULLUP);
@@ -99,7 +108,14 @@ void loop() {
           displayPlayerJoined(0);
           player1JoinedDisplayFlag = true;
         }
-        delay(500);
+        if (player2JoinedFlag && !player2JoinedDisplayFlag) {
+          displayPlayerJoined(1);
+          player2JoinedDisplayFlag = true;
+        }
+        if (player3JoinedFlag && !player3JoinedDisplayFlag) {
+          displayPlayerJoined(2);
+          player3JoinedDisplayFlag = true;
+        }
       }
       // for testing purposes
       Serial.println("Players in List: ");
@@ -294,13 +310,35 @@ void displayPlayerJoined(int playerNumber) {
       lcd1.setCursor(0,0);
       lcd1.print("Joined");
       break;
-    default :
+    case 1 :
+      lcd2.setCursor(0,0);
+      lcd2.print("Joined");
+      break;
+    case 2 :
+      lcd3.setCursor(0,0);
+      lcd3.print("Joined");
       break;
   }
 }
 
 void displayPlayerHand(int playerNumber) {
-
+  switch (playerNumber) {
+    case 0 :
+      lcd1.setCursor(0,0);
+      lcd1.print("Cards: ");
+      for (int i = 0; i < 10; i++) {
+        if (playerList[0].getCard(i) != 0) {
+          lcd1.print(playerList[0].getCard(i));
+          lcd1.print(" ");
+        }
+      }
+      lcd1.setCursor(0,1);
+      lcd1.print("Hand Total: ");
+      lcd1.print(playerList[0].calculateHandTotal());
+      break;
+    default :
+      break;
+  }
 }
 
 void displayPlayerOutcome(int playerNumber) {
@@ -332,14 +370,21 @@ void dealCards() {
       if (i == 0) {
         playerList[i].addCard(5);
         playerList[i].addCard(6);
+        displayPlayerHand(0);
       }
       else if (i == 1) {
         playerList[i].addCard(8);
         playerList[i].addCard(8);
+        displayPlayerHand(1);
       }
+      else if (i == 2) {
+        playerList[i].addCard(4);
+        playerList[i].addCard(4);
+        displayPlayerHand(2);
+      }
+      delay(5000);
       Serial.print("Player hand total: ");
       Serial.println(playerList[i].calculateHandTotal());
-      delay(5000);
     }
   }
   Serial.println("Dealing Cards to Dealer");
@@ -353,6 +398,7 @@ void dealCards() {
 void playerHit(int playerNumber) {
   Serial.println("Dealing a card to player");
   playerList[playerNumber].addCard(10);
+  displayPlayerHand(playerNumber);
   delay(5000);
   Serial.print("Player ");
   Serial.print(playerNumber+1);
