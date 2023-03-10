@@ -45,7 +45,14 @@ class Player {
         int calculateHandTotal() {
             int handTotal = 0;
             for (int i = 0; i < 10; i++) {
-                handTotal += hand[i];
+				if (hand[i] != 0) {
+					if (hand[i] == 11 || hand[i] == 12 || hand[i] == 13) {
+						handTotal += 10;
+					}
+					else {
+						handTotal += hand[i];
+					}
+				}
             }
             return handTotal;
         }
