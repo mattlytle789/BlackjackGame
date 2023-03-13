@@ -8,3 +8,5 @@
 #define player3ControllerPower 12 // Signal to power player 3 controller, pin 12
 #define hitButton 2 // Hit button, pin 1
 #define standButton 3 // Stand button, pin 2
+#define cvModuleOutputSignal 7 // Output signal to the CV module, pin 7
+#define cvModuleInputSignal A0 // Input signal from the CV module, pin A0

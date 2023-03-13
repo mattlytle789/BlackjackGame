@@ -86,11 +86,13 @@ void setup() {
   pinMode(hitButton, INPUT_PULLUP);
   pinMode(standButton, INPUT_PULLUP);
   pinMode(clearButton, INPUT_PULLUP);
+  pinMode(cvModuleInputSignal, INPUT);
 
   // setting output pins
   pinMode(player1ControllerPower, OUTPUT);
   pinMode(player2ControllerPower, OUTPUT);
   pinMode(player3ControllerPower, OUTPUT);
+  pinMode(cvModuleOutputSignal, OUTPUT);
 
   // setting interrupts
   PCICR |= B00000100; // Opening Port D
