@@ -9,13 +9,16 @@ void setup() {
   // put your setup code here, to run once:
   pinMode(controllerIn, INPUT);
   pinMode(CVout, OUTPUT);
+  randomSeed(A0);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   input = digitalRead(controllerIn);
   if (input == 1) {
-    analogWrite(CVout, count);
-    count++;
+    analogWrite(CVout, random(13)+1);
+  }
+  else {
+    digitalWrite(CVout, LOW);
   }
 }
