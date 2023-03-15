@@ -48,7 +48,8 @@ State_Type gameState = pregame; // Current state of the game :: initialized to P
 /***** LCD Display Variables *********/
 LiquidCrystal_I2C lcd1(0x27, 20, 4);
 LiquidCrystal_I2C lcd2(0x20, 20, 4);
-LiquidCrystal_I2C lcd3(0x25, 16, 2);
+LiquidCrystal_I2C lcd3(0x23, 20, 4);
+LiquidCrystal_I2C lcd4(0x25, 20, 4);
 /*************************************/
 
 /***** Misc Variables ****************/
@@ -77,6 +78,9 @@ void setup() {
   lcd3.init();
   lcd3.clear();
   lcd3.backlight();
+  lcd4.init();
+  lcd4.clear();
+  lcd4.backlight();
 
   // setting input pins 
   pinMode(player1PlayButton, INPUT_PULLUP);
@@ -352,6 +356,31 @@ void displayPlayerJoined(int playerNumber) {
   }
 }
 
+void displayDealerHand() {
+  if (gameState == dealing) {
+    lcd4.setCursor(0,0);
+    lcd4.print("Cards: ");
+    lcd4.print(cardNames[playerList[4].getCard(1)-1]);
+    lcd4.print(" ");
+    lcd4.setCursor(0,1);
+    lcd4.print("Hand Total: ");
+    lcd4.print(playerList[4].calculateHandTotal(false)-playerList[4].getCard(0));
+  }
+  else {
+    lcd4.setCursor(0,0);
+    lcd4.print("Cards: ");
+    for (int i = 0; i < 10; i++) {
+      if (playerList[4].getCard(i) != 0) {
+        lcd4.print(cardNames[playerList[4].getCard(i)-1]);
+        lcd4.print(" ");
+      }
+    }
+    lcd4.setCursor(0,1);
+    lcd4.print("Hand Total: ");
+    lcd4.print(playerList[4].calculateHandTotal(false));
+  }
+}
+
 void displayPlayerHand(int playerNumber) {
   switch (playerNumber) {
     case 0 :
@@ -379,6 +408,19 @@ void displayPlayerHand(int playerNumber) {
       lcd2.setCursor(0,1);
       lcd2.print("Hand Total: ");
       lcd2.print(playerList[1].calculateHandTotal(false));
+      break;
+    case 2 :
+      lcd3.setCursor(0,0);
+      lcd3.print("Cards: ");
+      for (int i = 0; i < 10; i++) {
+        if (playerList[2].getCard(i) != 0) {
+          lcd3.print(cardNames[playerList[2].getCard(i)-1]);
+          lcd3.print(" ");
+        }
+      }
+      lcd3.setCursor(0,1);
+      lcd3.print("Hand Total: ");
+      lcd3.print(playerList[2].calculateHandTotal(false));
       break;
     default :
       break;
@@ -470,6 +512,7 @@ void dealCards() {
   Serial.println("Dealing Cards to Dealer");
   playerList[4].addCard(random(13)+1);
   playerList[4].addCard(random(13)+1);
+  displayDealerHand();
   Serial.print("Dealer hand total: ");
   Serial.println(playerList[4].calculateHandTotal(false));
   delay(5000);
@@ -516,6 +559,7 @@ void dealerHit() {
   Serial.println("Dealer Hit, deal a card");
   playerList[4].addCard(random(13)+1);
   delay(5000);
+  displayDealerHand();
 }
 
 void dealerStand() {
