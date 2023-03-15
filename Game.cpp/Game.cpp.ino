@@ -46,8 +46,8 @@ State_Type gameState = pregame; // Current state of the game :: initialized to P
 /*************************************/
 
 /***** LCD Display Variables *********/
-LiquidCrystal_I2C lcd1(0x27, 16, 2);
-LiquidCrystal_I2C lcd2(0x26, 16, 2);
+LiquidCrystal_I2C lcd1(0x27, 20, 4);
+LiquidCrystal_I2C lcd2(0x20, 20, 4);
 LiquidCrystal_I2C lcd3(0x25, 16, 2);
 /*************************************/
 
@@ -366,6 +366,19 @@ void displayPlayerHand(int playerNumber) {
       lcd1.setCursor(0,1);
       lcd1.print("Hand Total: ");
       lcd1.print(playerList[0].calculateHandTotal(false));
+      break;
+    case 1 :
+      lcd2.setCursor(0,0);
+      lcd2.print("Cards: ");
+      for (int i = 0; i < 10; i++) {
+        if (playerList[1].getCard(i) != 0) {
+          lcd2.print(cardNames[playerList[1].getCard(i)-1]);
+          lcd2.print(" ");
+        }
+      }
+      lcd2.setCursor(0,1);
+      lcd2.print("Hand Total: ");
+      lcd2.print(playerList[1].calculateHandTotal(false));
       break;
     default :
       break;
