@@ -15,7 +15,9 @@ void loop() {
   // put your main code here, to run repeatedly:
   digitalWrite(controllerOut, HIGH);
   input = analogRead(CVin);
-  digitalWrite(controllerOut, LOW);
-  Serial.println(input);
-  delay(500);
+  if (input > 0) {
+    digitalWrite(controllerOut, LOW);
+    Serial.println(input);
+  }
+  delay(5000);
 }
