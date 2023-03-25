@@ -15,7 +15,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   // Turn Motor 1 on 
   digitalWrite(v1, HIGH); // HIGH =  :: LOW =
-  analogWrite(en1, 50);
+  analogWrite(en1, 150);
   analogWrite(en2, 0); 
   analogWrite(en3, 0);
   delay(2000);
@@ -23,7 +23,7 @@ void loop() {
 
   // turn Motor 2 on
   analogWrite(en1, 0);
-  analogWrite(en2, 150); 
+  analogWrite(en2, 100); 
   analogWrite(en3, 0);
   delay(2000);
   analogWrite(en2, 0);
@@ -31,7 +31,7 @@ void loop() {
   // turn Motor 3 on 
   analogWrite(en1, 0);
   analogWrite(en2, 0); 
-  analogWrite(en3, 200);
+  analogWrite(en3, 255);
   delay(2000);
   analogWrite(en3, 0);
 
