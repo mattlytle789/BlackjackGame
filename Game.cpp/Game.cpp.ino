@@ -149,10 +149,8 @@ void loop() {
       // check for blackjack
       for (int i = 0; i < 3; i++) {
         if (playerList[i].getNumber() != 0) {
-          if (playerList[i].getHasAceFlag()) {
-            if (playerList[i].calculateHandTotal(true) == 21) {
-              playerList[i].setOutcome(blackjack);
-            }
+          if (playerList[i].calculateHandTotal() == 21) {
+            playerList[i].setOutcome(blackjack);
           }
         }
       }
@@ -186,7 +184,7 @@ void loop() {
           }
           // waiting for a player to stand
           while (!turnOverFlag) {
-            if (playerList[i].calculateHandTotal(false) > 21) {
+            if (playerList[i].calculateHandTotal() > 21) {
               playerBust(i);
             }
             // reading the state of the action buttons
@@ -208,14 +206,15 @@ void loop() {
     // Dealer Action State
     case dealerAction :
       Serial.println("Dealer Action State");
+      displayDealerHand();
       while (!dealerTurnOverFlag) {
-        if (playerList[4].calculateHandTotal(false) > 21) {
+        if (playerList[4].calculateHandTotal() > 21) {
           dealerBust();
         }
-        else if (playerList[4].calculateHandTotal(false) >= 17) {
+        else if (playerList[4].calculateHandTotal() >= 17) {
           dealerStand();
         }
-        else if (playerList[4].calculateHandTotal(false) <= 16) {
+        else if (playerList[4].calculateHandTotal() <= 16) {
           dealerHit();
         }
       }
@@ -228,28 +227,28 @@ void loop() {
       for (int i = 0; i < 3; i++) {
         if (playerList[i].getNumber() != 0) {
           Serial.print("Dealer total: ");
-          Serial.println(playerList[4].calculateHandTotal(false));
+          Serial.println(playerList[4].calculateHandTotal());
           Serial.print("Player ");
           Serial.print(i+1);
           Serial.print(" total: ");
-          Serial.println(playerList[i].calculateHandTotal(false));
-          if (playerList[4].calculateHandTotal(false) > 21) {
+          Serial.println(playerList[i].calculateHandTotal());
+          if (playerList[4].calculateHandTotal() > 21) {
             //displayPlayerOutcome(i,outcomes[0]);
             dealerBustGameOver(i);
           }
-          else if (playerList[i].calculateHandTotal(false) > 21) {
+          else if (playerList[i].calculateHandTotal() > 21) {
             //displayPlayerOutcome(i,outcomes[1]);
             playerBustGameOver(i);
           }
-          else if (playerList[i].calculateHandTotal(false) > playerList[4].calculateHandTotal(false)) {
+          else if (playerList[i].calculateHandTotal() > playerList[4].calculateHandTotal()) {
             //displayPlayerOutcome(i,outcomes[0]);
             playerWin(i);
           }
-          else if (playerList[i].calculateHandTotal(false) < playerList[4].calculateHandTotal(false)) {
+          else if (playerList[i].calculateHandTotal() < playerList[4].calculateHandTotal()) {
             //displayPlayerOutcome(i,outcomes[1]);
             playerLose(i);
           }
-          else if (playerList[i].calculateHandTotal(false) == playerList[4].calculateHandTotal(false)) {
+          else if (playerList[i].calculateHandTotal() == playerList[4].calculateHandTotal()) {
             //displayPlayerOutcome(i,outcomes[3]);
             playerPush(i);
           }
@@ -268,6 +267,7 @@ void loop() {
       lcd1.clear();
       lcd2.clear();
       lcd3.clear();
+      lcd4.clear();
       // resetting all flag variables to false
       turnOverFlag = false;
       dealerTurnOverFlag = false;
@@ -276,6 +276,8 @@ void loop() {
       player2JoinedFlag = false;
       player3JoinedFlag = false;
       player1JoinedDisplayFlag = false;
+      player2JoinedDisplayFlag = false;
+      player3JoinedDisplayFlag = false;
       // resetting all button state variables 
       player1PlayButtonState = 0;
       player2PlayButtonState = 0;
@@ -364,7 +366,15 @@ void displayDealerHand() {
     lcd4.print(" ");
     lcd4.setCursor(0,1);
     lcd4.print("Hand Total: ");
-    lcd4.print(playerList[4].calculateHandTotal(false)-playerList[4].getCard(0));
+    if (playerList[4].getCard(1) == 1) {
+      lcd4.print("11");
+    }
+    else if (playerList[4].getCard(1) == 11 || playerList[4].getCard(1) == 12 || playerList[4].getCard(1) == 13) {
+      lcd4.print("10");
+    }
+    else {
+      lcd4.print(playerList[4].getCard(1));
+    }
   }
   else {
     lcd4.setCursor(0,0);
@@ -377,7 +387,7 @@ void displayDealerHand() {
     }
     lcd4.setCursor(0,1);
     lcd4.print("Hand Total: ");
-    lcd4.print(playerList[4].calculateHandTotal(false));
+    lcd4.print(playerList[4].calculateHandTotal());
   }
 }
 
@@ -394,7 +404,7 @@ void displayPlayerHand(int playerNumber) {
       }
       lcd1.setCursor(0,1);
       lcd1.print("Hand Total: ");
-      lcd1.print(playerList[0].calculateHandTotal(false));
+      lcd1.print(playerList[0].calculateHandTotal());
       break;
     case 1 :
       lcd2.setCursor(0,0);
@@ -407,7 +417,7 @@ void displayPlayerHand(int playerNumber) {
       }
       lcd2.setCursor(0,1);
       lcd2.print("Hand Total: ");
-      lcd2.print(playerList[1].calculateHandTotal(false));
+      lcd2.print(playerList[1].calculateHandTotal());
       break;
     case 2 :
       lcd3.setCursor(0,0);
@@ -420,7 +430,7 @@ void displayPlayerHand(int playerNumber) {
       }
       lcd3.setCursor(0,1);
       lcd3.print("Hand Total: ");
-      lcd3.print(playerList[2].calculateHandTotal(false));
+      lcd3.print(playerList[2].calculateHandTotal());
       break;
     default :
       break;
@@ -484,29 +494,9 @@ void dealCards() {
         playerList[i].addCard(random(13)+1);
         displayPlayerHand(2);
       }
-      if (playerList[i].getCard(0) == 1 || playerList[i].getCard(1) == 1) {
-        playerList[i].setHasAceFlag(true);
-      }
       delay(5000);
-      // check for blackjack
-      for (int i = 0; i < 3; i++) {
-        if (playerList[i].getNumber() != 0) {
-          if (playerList[i].getHasAceFlag()) {
-            if (playerList[i].calculateHandTotal(true) == 21) {
-              playerList[i].setOutcome(blackjack);
-            }
-          }
-        }
-      }
       Serial.print("Player hand total: ");
-      Serial.print(playerList[i].calculateHandTotal(false));
-      if (playerList[i].getHasAceFlag()) {
-        Serial.print(",");
-        Serial.println(playerList[i].calculateHandTotal(true));
-      }
-      else {
-        Serial.println("");
-      }
+      Serial.println(playerList[i].calculateHandTotal());
     }
   }
   Serial.println("Dealing Cards to Dealer");
@@ -514,28 +504,18 @@ void dealCards() {
   playerList[4].addCard(random(13)+1);
   displayDealerHand();
   Serial.print("Dealer hand total: ");
-  Serial.println(playerList[4].calculateHandTotal(false));
+  Serial.println(playerList[4].calculateHandTotal());
   delay(5000);
 }
 
 void playerHit(int playerNumber) {
   Serial.println("Dealing a card to player");
   int newCard = random(13)+1;
-  if (newCard == 1) {
-    playerList[playerNumber].setHasAceFlag(true);
-  }
   playerList[playerNumber].addCard(newCard);
   displayPlayerHand(playerNumber);
   delay(5000);
   Serial.print("Total: ");
-  Serial.print(playerList[playerNumber].calculateHandTotal(false));
-  if (playerList[playerNumber].getHasAceFlag()) {
-    Serial.print(",");
-    Serial.println(playerList[playerNumber].calculateHandTotal(true));
-  }
-  else {
-    Serial.println("");
-  }
+  Serial.println(playerList[playerNumber].calculateHandTotal());
   Serial.print("Player ");
   Serial.print(playerNumber+1);
   Serial.println(" turn");
@@ -573,30 +553,37 @@ void dealerBust() {
 }
 
 void playerWin(int playerNumber) {
+  playerList[playerNumber].setOutcome(win);
   Serial.print("Player ");
   Serial.print(playerNumber+1);
   Serial.println(" wins!");
 }
 
 void playerLose(int playerNumber) {
+  playerList[playerNumber].setOutcome(loss);
   Serial.print("Player ");
   Serial.print(playerNumber+1);
   Serial.println(" loses!");
 }
 
 void playerPush(int playerNumber) {
+  playerList[playerNumber].setOutcome(push);
   Serial.print("Player ");
   Serial.print(playerNumber+1);
   Serial.println(" pushes!");
 }
 
 void playerBustGameOver(int playerNumber) {
+  playerList[playerNumber].setOutcome(loss);
   Serial.print("Player ");
   Serial.print(playerNumber+1);
   Serial.println(" busts!");
 }
 
 void dealerBustGameOver(int playerNumber) {
+  for (int i = 0; i < 3; i++) {
+    playerList[i].setOutcome(win);
+  }
   Serial.print("Dealer Busts, Player ");
   Serial.print(playerNumber+1);
   Serial.println(" wins!");

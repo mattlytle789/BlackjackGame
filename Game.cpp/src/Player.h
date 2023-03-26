@@ -5,7 +5,7 @@ private:
 	int number;
 	int hand[10];
 	int handIndex;
-	bool hasAceFlag;
+	int numAces;
 	Outcome_Type outcome;
 public:
 	Player() {
@@ -13,6 +13,7 @@ public:
 			hand[i] = 0;
 		}
 		handIndex = 0;
+		numAces = 0;
 	}
 	Player(int num) {
 		number = num;
@@ -20,7 +21,7 @@ public:
 			hand[i] = 0;
 		}
 		handIndex = 0;
-		hasAceFlag = false;
+		numAces = 0;
 	}
 	// getter methods
 	int getNumber() {
@@ -29,8 +30,8 @@ public:
 	int getCard(int index) {
 		return hand[index];
 	}
-	bool getHasAceFlag() {
-		return hasAceFlag;
+	int getNumAces() {
+		return numAces;
 	}
 	Outcome_Type getOutcome() {
 		return outcome;
@@ -38,9 +39,6 @@ public:
 	// mutator methods
 	void setNumber(int num) {
 		number = num;
-	}
-	void setHasAceFlag(bool flag) {
-		hasAceFlag = flag;
 	}
 	void setOutcome(Outcome_Type o) {
 		outcome = o;
@@ -59,35 +57,33 @@ public:
 		return false;
 	}
 	// methods
-	int calculateHandTotal(bool aceFlag) {
+	int calculateHandTotal() {
 		int handTotal = 0;
-		if (!aceFlag) {
-			for (int i = 0; i < 10; i++) {
-				if (hand[i] == 11 || hand[i] == 12 || hand[i] == 13) {
-					handTotal += 10;
-				}
-				else {
-					handTotal += hand[i];
-				}
+		for (int i = 0; i < 10; i++) {
+			if (hand[i] == 11 || hand[i] == 12 || hand[i] == 13) {
+				handTotal += 10;
+			}
+			else if (hand[i] == 1) {
+				handTotal += 11;
+			}
+			else {
+				handTotal += hand[i];
 			}
 		}
-		else if (aceFlag) {
-			for (int i = 0; i < 10; i++) {
-				if (hand[i] == 1) {
-					handTotal += 11;
-				}
-				else if (hand[i] == 11 || hand[i] == 12 || hand[i] == 13) {
-					handTotal += 10;
-				}
-				else {
-					handTotal += hand[i];
-				}
+		if (numAces > 0 && handTotal > 21) {
+			int subtractions = 0;
+			while (subtractions < numAces && handTotal > 21) {
+				handTotal -= 10;
+				subtractions++;
 			}
 		}
 		return handTotal;
 	}
 	void addCard(int num) {
 		hand[handIndex] = num;
+		if (num == 1) {
+			numAces++;
+		}
 		handIndex++;
 	}
 };
