@@ -85,14 +85,14 @@ void setup() {
   pinMode(dealButton, INPUT_PULLUP);
   pinMode(hitButton, INPUT_PULLUP);
   pinMode(standButton, INPUT_PULLUP);
-  pinMode(clearButton, INPUT_PULLUP);
-  pinMode(cvModuleInputSignal, INPUT);
+  //pinMode(clearButton, INPUT_PULLUP);
+  //pinMode(cvModuleInputSignal, INPUT);
 
   // setting output pins
   pinMode(player1ControllerPower, OUTPUT);
   pinMode(player2ControllerPower, OUTPUT);
   pinMode(player3ControllerPower, OUTPUT);
-  pinMode(cvModuleOutputSignal, OUTPUT);
+  //pinMode(cvModuleOutputSignal, OUTPUT);
 
   // setting interrupts
   PCICR |= B00000100; // Opening Port D
@@ -100,7 +100,7 @@ void setup() {
   PCMSK2 |= B00100000; // setting pin 5 to have interrupt
   PCMSK2 |= B01000000; // setting pin 6 to have interrupt
   PCICR |= B00000001; // Opening Port B
-  PCMSK0 |= B00000001; // setting pin 8 to have interrupt
+  PCMSK0 |= B00000010; // setting pin 9 to have interrupt
 
   // initializing the game state to pregame
   gameState = pregame;
@@ -141,6 +141,7 @@ void loop() {
     // Dealing state
     case dealing :
       Serial.println("Dealing State Begin");
+      dealButtonState = 0;
       dealCards();
       // check for blackjack
       for (int i = 0; i < 3; i++) {
@@ -251,8 +252,8 @@ void loop() {
           }
         }
       }
-      while (clearButtonState != 1) {
-        clearButtonState = digitalRead(clearButton);
+      while (dealButtonState != 1) {
+        dealButtonState = digitalRead(dealButton);
       }
       Serial.println("Game Over State Over");
       gameState = clearTable;
