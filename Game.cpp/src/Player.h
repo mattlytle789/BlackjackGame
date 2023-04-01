@@ -6,7 +6,7 @@ private:
 	int hand[10];
 	int handIndex;
 	int numAces;
-	Outcome_Type outcome;
+	String outcome;
 public:
 	Player() {
 		for (int i = 0; i < 10; i++) {
@@ -33,14 +33,14 @@ public:
 	int getNumAces() {
 		return numAces;
 	}
-	Outcome_Type getOutcome() {
+	String getOutcome() {
 		return outcome;
 	}
 	// mutator methods
 	void setNumber(int num) {
 		number = num;
 	}
-	void setOutcome(Outcome_Type o) {
+	void setOutcome(String o) {
 		outcome = o;
 	}
 	// overloading operators
