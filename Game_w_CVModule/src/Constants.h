@@ -6,7 +6,7 @@
 #define player2ControllerPower A1 // Signal to power player 2 controller, pin 11
 #define player3ControllerPower 12 // Signal to power player 3 controller, pin 12
 #define hitButton 2 // Hit button, pin 1
-#define standButton 3 // Stand button, pin 2
+#define standButton A2 // Stand button, pin 2
 #define CVout 7 // output signal to CV module, pin 7
 #define CVin 8 // input signal from CV module, pin 8
 #define enMotor1 3 // Signal to power motor 1 base motor, pin 3
