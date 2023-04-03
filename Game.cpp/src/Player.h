@@ -6,7 +6,7 @@ private:
 	int hand[10];
 	int handIndex;
 	int numAces;
-	String outcome;
+	bool blackjackFlag;
 public:
 	Player() {
 		for (int i = 0; i < 10; i++) {
@@ -14,6 +14,7 @@ public:
 		}
 		handIndex = 0;
 		numAces = 0;
+		blackjackFlag = false;
 	}
 	Player(int num) {
 		number = num;
@@ -22,6 +23,7 @@ public:
 		}
 		handIndex = 0;
 		numAces = 0;
+		blackjackFlag = false;
 	}
 	// getter methods
 	int getNumber() {
@@ -33,15 +35,15 @@ public:
 	int getNumAces() {
 		return numAces;
 	}
-	String getOutcome() {
-		return outcome;
+	bool getBlackjackFlag() {
+		return blackjackFlag;
 	}
 	// mutator methods
 	void setNumber(int num) {
 		number = num;
 	}
-	void setOutcome(String o) {
-		outcome = o;
+	void setBlackjackFlag(bool bf) {
+		blackjackFlag = bf;
 	}
 	// overloading operators
 	bool operator==(Player& P) {
