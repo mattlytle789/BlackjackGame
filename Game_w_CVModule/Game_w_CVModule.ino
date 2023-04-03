@@ -160,6 +160,7 @@ void loop() {
           }
         }
       }
+      Serial.println(Serial.available());
       Serial.println("Dealing State Over");
       gameState = playerAction;
       break;
@@ -481,11 +482,6 @@ void playPlayer2() {
 
 void receivePlayerCard(int playerNumber) {
   int input = '0';
-  while (!Serial.available()) {
-    if (Serial.available()) {
-      break;
-    }
-  }
   input = Serial.read();
   Serial.println(input);
 
@@ -496,39 +492,51 @@ void receivePlayerCard(int playerNumber) {
       break;
     case '3' :
       playerList[playerNumber].addCard(3);
+      Serial.println("Received 3");
       break;
     case '4' :
       playerList[playerNumber].addCard(4);
+      Serial.println("Received 4");
       break;
     case '5' :
       playerList[playerNumber].addCard(5);
+      Serial.println("Received 5");
       break;
     case '6' :
       playerList[playerNumber].addCard(6);
+      Serial.println("Received 6");
       break;
     case '7' :
       playerList[playerNumber].addCard(7);
+      Serial.println("Received 7");
       break;
     case '8' :
       playerList[playerNumber].addCard(8);
+      Serial.println("Received 8");
       break;
     case '9' :
       playerList[playerNumber].addCard(9);
+      Serial.println("Received 9");
       break;
     case 'T' :
       playerList[playerNumber].addCard(10);
+      Serial.println("Received 10");
       break;
     case 'J' :
       playerList[playerNumber].addCard(11);
+      Serial.println("Received J");
       break;
     case 'Q' :
       playerList[playerNumber].addCard(12);
+      Serial.println("Received Q");
       break;
     case 'K' :
       playerList[playerNumber].addCard(13);
+      Serial.println("Received K");
       break;
     case 'A' :
       playerList[playerNumber].addCard(1);
+      Serial.println("Received A");
       break;
     default :
       Serial.println("ERROR! Bad card read");
@@ -540,8 +548,12 @@ void dealCards() {
   Serial.println("Dealing Cards");
   // dealing first round of cards to players
   for (int i = 0; i < 8; i++) {
+    Serial.println(Serial.available());
+    while(Serial.available() > 0) {
+      Serial.read();
+    }
+    Serial.println(Serial.available());
     if (playerList[i%4].getNumber() != 0) {
-      Serial.println(i);
       digitalWrite(CVout, HIGH);
       cardReadyFlag = false;
       while (!cardReadyFlag) {
@@ -555,6 +567,10 @@ void dealCards() {
         }
       }
       digitalWrite(CVout, LOW);
+      Serial.println(Serial.available());
+      while (Serial.available() == 0) {
+        continue;
+      }
       receivePlayerCard(i%4);
     }
   }
