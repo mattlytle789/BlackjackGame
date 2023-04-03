@@ -1,7 +1,7 @@
 const int v1 = 7;
-const int en1 = A0;
-const int en2 = A1;
-const int en3 = A2;
+const int en1 = 3;
+const int en2 = 10;
+const int en3 = 11;
 
 void setup() {
   // put your setup code here, to run once:
@@ -15,7 +15,14 @@ void loop() {
   // put your main code here, to run repeatedly:
   // Turn Motor 1 on 
   digitalWrite(v1, HIGH); // HIGH =  :: LOW =
-  analogWrite(en1, HIGH);
+  analogWrite(en1, 255);
+  analogWrite(en2, 0); 
+  analogWrite(en3, 0);
+  delay(1000);
+  analogWrite(en1, 0);
+  delay(2000);
+
+  analogWrite(en1, 100);
   analogWrite(en2, 0); 
   analogWrite(en3, 0);
   delay(1000);
