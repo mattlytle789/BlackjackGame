@@ -48,7 +48,7 @@ void loop() {
     delay(3000);
     // Turn Base Motor opposite direction
     digitalWrite(v1, LOW);
-    analogWrite(en1, 255);
+    analogWrite(en1, 150);
     analogWrite(en2, 0);
     delay(2000);
     digitalWrite(v1, HIGH);
