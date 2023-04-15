@@ -27,7 +27,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   // Turn Motor Base Motor back and forth
   if (digitalRead(startButton) == 1) {
-    digitalWrite(v1, HIGH); // HIGH =  :: LOW =
+    digitalWrite(v1, LOW); // HIGH =  :: LOW =
     analogWrite(en1, 0);
     analogWrite(en2, 220); 
     analogWrite(en3, 0); 
@@ -35,18 +35,18 @@ void loop() {
       Serial.println(receiverCount);
     }
     //delay(2000);
-    digitalWrite(v1, LOW);
+    digitalWrite(v1, HIGH);
     analogWrite(en1, 0);
     analogWrite(en2, 0);
     analogWrite(en3, 0);
     delay(3000);
     // Turn Base Motor opposite direction
-    digitalWrite(v1, LOW);
+    digitalWrite(v1, HIGH);
     analogWrite(en1, 0);
     analogWrite(en2, 210);
     analogWrite(en3, 0);
     delay(750);
-    digitalWrite(v1, HIGH);
+    digitalWrite(v1, LOW);
     analogWrite(en1, 0);
     analogWrite(en2, 0);
     analogWrite(en3, 0);
@@ -82,7 +82,7 @@ void loop() {
     analogWrite(en1, 0);
     analogWrite(en2, 0); 
     analogWrite(en3, 100);
-    delay(600);
+    delay(700);
     digitalWrite(v1, LOW);
     analogWrite(en1, 0);
     analogWrite(en2, 0);
@@ -93,12 +93,13 @@ void loop() {
     analogWrite(en1, 0);
     analogWrite(en2, 0);
     analogWrite(en3, 100);
-    delay(400);
+    delay(500);
     digitalWrite(v1, HIGH);
     analogWrite(en1, 0);
     analogWrite(en2, 0);
     analogWrite(en3, 0);
 
+    receiverCount = 0;
   }
 }
 
