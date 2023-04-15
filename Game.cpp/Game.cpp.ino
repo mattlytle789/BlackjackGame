@@ -46,10 +46,10 @@ State_Type gameState = pregame; // Current state of the game :: initialized to P
 /*************************************/
 
 /***** LCD Display Variables *********/
-LiquidCrystal_I2C lcd1(0x27, 20, 4);
-LiquidCrystal_I2C lcd2(0x20, 20, 4);
-LiquidCrystal_I2C lcd3(0x23, 20, 4);
-LiquidCrystal_I2C lcd4(0x25, 20, 4);
+LiquidCrystal_I2C lcd1(0x25, 20, 4);
+LiquidCrystal_I2C lcd2(0x23, 20, 4);
+LiquidCrystal_I2C lcd3(0x20, 20, 4);
+LiquidCrystal_I2C lcd4(0x27, 20, 4);
 /*************************************/
 
 /***** Misc Variables ****************/
@@ -149,6 +149,13 @@ void loop() {
       dealButtonState = 0;
       dealCards();
       Serial.println("Dealing State Over");
+      for (int i = 0; i < 4; i++) {
+        if (playerList[i].getNumber() != 0) {
+          if (playerList[i].calculateHandTotal() == 21) {
+            playerList[i].setBlackjackFlag(true);
+          }
+        }
+      }
       gameState = playerAction;
       break;
     // Player Action state
@@ -249,28 +256,30 @@ void loop() {
             //displayPlayerOutcome(i,outcomes[0]);
             dealerBustGameOver();
       }
-      for (int i = 0; i < 3; i++) {
-        if (playerList[i].getNumber() != 0) {
-          Serial.print("Dealer total: ");
-          Serial.println(playerList[3].calculateHandTotal());
-          Serial.print("Player ");
-          Serial.print(i+1);
-          Serial.print(" total: ");
-          Serial.println(playerList[i].calculateHandTotal());
-          if (playerList[i].calculateHandTotal() > 21) {
-            playerBustGameOver(i);
-          }
-          else if (playerList[i].getBlackjackFlag()) {
-            playerBlackjack(i);
-          }
-          else if (playerList[i].calculateHandTotal() > playerList[3].calculateHandTotal()) {
-            playerWin(i);
-          }
-          else if (playerList[i].calculateHandTotal() < playerList[3].calculateHandTotal()) {
-            playerLose(i);
-          }
-          else if (playerList[i].calculateHandTotal() == playerList[3].calculateHandTotal()) {
-            playerPush(i);
+      else { 
+        for (int i = 0; i < 3; i++) {
+          if (playerList[i].getNumber() != 0) {
+            Serial.print("Dealer total: ");
+            Serial.println(playerList[3].calculateHandTotal());
+            Serial.print("Player ");
+            Serial.print(i+1);
+            Serial.print(" total: ");
+            Serial.println(playerList[i].calculateHandTotal());
+            if (playerList[i].calculateHandTotal() > 21) {
+              playerBustGameOver(i);
+            }
+            else if (playerList[i].getBlackjackFlag()) {
+              playerBlackjack(i);
+            }
+            else if (playerList[i].calculateHandTotal() > playerList[3].calculateHandTotal()) {
+              playerWin(i);
+            }
+            else if (playerList[i].calculateHandTotal() < playerList[3].calculateHandTotal()) {
+              playerLose(i);
+            }
+            else if (playerList[i].calculateHandTotal() == playerList[3].calculateHandTotal()) {
+              playerPush(i);
+            }
           }
         }
       }
@@ -514,9 +523,6 @@ void dealCards() {
       }
       Serial.print("Player hand total: ");
       Serial.println(playerList[i].calculateHandTotal());
-      if (playerList[i].calculateHandTotal() == 21) {
-        playerList[i].setBlackjackFlag(true);
-      }
     }
   }
   Serial.println("Dealing Cards to Dealer");
@@ -603,7 +609,7 @@ void playerBustGameOver(int playerNumber) {
 }
 
 void playerBlackjack(int playerNumber) {
-    Serial.print("Player ");
+  Serial.print("Player ");
   Serial.print(playerNumber+1);
   Serial.println(" blackjack!");
   displayPlayerOutcome(playerNumber, "Blackjack");
@@ -618,6 +624,12 @@ void dealerBustGameOver() {
     Serial.print("Dealer Busts, Player ");
     Serial.print(i+1);
     Serial.println(" wins!");
+    if (playerList[i].calculateHandTotal() > 21) {
+      displayPlayerOutcome(i, "Loss");
+    }
+    else {
+      displayPlayerOutcome(i, "Win");
+    }    
   }
 }
 
@@ -630,6 +642,12 @@ void dealerBlackjackGameOver() {
     Serial.print("Dealer Blackjack, Player ");
     Serial.print(i+1);
     Serial.println(" loses!");
+    if (playerList[i].getBlackjackFlag()) {
+      displayPlayerOutcome(i, "Push");
+    }
+    else {
+      displayPlayerOutcome(i, "Loss");
+    }
   }
 }
 
