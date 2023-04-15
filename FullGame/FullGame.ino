@@ -23,6 +23,7 @@ bool player3JoinedFlag = false; // flag for if player 2 joined the game :: true 
 bool player1JoinedDisplayFlag = false; // flag for if player 1's join message has been displayed :: true when displayed, false otherwise
 bool player2JoinedDisplayFlag = false; // flag for if player 2's join message has been displayed :: true when displayed, false otherwise
 bool player3JoinedDisplayFlag = false; // flag for if player 3's join message has been displayed :: true when displayed, false otherwise
+bool cardReadyFlag = false; // flag for when the CV module has determined the type of card :: true when ready, false otherwise
 /*************************************/
 
 /***** Button State Variables ********/
@@ -33,6 +34,8 @@ volatile int dealButtonState = 0; // state of the deal button
 volatile int hitButtonState = 0; // state of the hit button
 volatile int standButtonState = 0; // state of the stand button
 volatile int clearButtonState = 0; // state of the clear button
+volatile int receiverState = 0; // state of the position receiver
+volatile int CVinState = 0; // state of the signal from the CV module
 /*************************************/
 
 /***** Testing Variables *************/
@@ -55,6 +58,7 @@ LiquidCrystal_I2C lcd4(0x27, 20, 4);
 /***** Misc Variables ****************/
 String cardNames[] = { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
 String outcomes[] = {"Win","Lose","Push","Blackjack"};
+int receiverCount = 0; // count of the number of receivers
 /*************************************/
 void setup() {
   // For testing purposes
@@ -366,6 +370,10 @@ ISR (PCINT2_vect) {
 
 // interrupt method for pins on Port C :: used for dealing and clear table buttons
 ISR (PCINT0_vect) {
+  receiverState = digitalRead(receiver);
+  if (receiverState == 1) {
+    receiverCount++;
+  }
   if (gameState == pregame) {
     dealButtonState = digitalRead(dealButton);
     if (numPlayers > 0 && dealButtonState == 1) {
@@ -505,39 +513,268 @@ void playPlayer2() {
 */
 
 void dealCards() {
-  Serial.println("Dealing Cards to Players");
-  for (int i = 0; i < 3; i++) {
-    if (playerList[i].getNumber() != 0) {
-      Serial.print("Dealing Player ");
-      Serial.println(i+1);
-      if (i == 0) {
-        playerList[i].addCard(random(13)+1);
-        playerList[i].addCard(random(13)+1);
-        displayPlayerHand(0);
+  for (int i = 0; i < 8; i++) {
+    int playerNumber = i%4;
+    receiverCount = 0;
+    if (playerList[playerNumber].getNumber() != 0) {
+      drawCard();
+      // read garbage data from cv module
+      while (Serial.available() > 0) {
+        Serial.read();
       }
-      else if (i == 1) {
-        playerList[i].addCard(random(13)+1);
-        playerList[i].addCard(random(13)+1);
-        displayPlayerHand(1);
+      // signal to cv module to take picture
+      digitalWrite(CVout, HIGH);
+      delay(500);
+      // deal card to player
+      if (playerNumber == 3) {
+        dealDealer();
       }
-      else if (i == 2) {
-        playerList[i].addCard(random(13)+1);
-        playerList[i].addCard(random(13)+1);
-        displayPlayerHand(2);
+      else {
+        dealPlayer(playerNumber);
       }
-      Serial.print("Player hand total: ");
-      Serial.println(playerList[i].calculateHandTotal());
+      // receive card from CV module 
+      cardReadyFlag = false;
+      while (!cardReadyFlag) {
+        CVinState = digitalRead(CVin);
+        if (CVinState == 1) {
+          cardReadyFlag = true;
+        }
+        else {
+          cardReadyFlag = false;
+        }
+      }
+      digitalWrite(CVout, LOW);
+      while (Serial.available() == 0) {
+        continue;
+      }
+      receivePlayerCard(playerNumber);
     }
   }
-  Serial.println("Dealing Cards to Dealer");
-  playerList[3].addCard(random(13)+1);
-  playerList[3].addCard(random(13)+1);
-  displayDealerHand();
-  Serial.print("Dealer hand total: ");
-  Serial.println(playerList[3].calculateHandTotal());
-  if (playerList[3].calculateHandTotal() == 21) {
-    playerList[3].setBlackjackFlag(true);
-    gameState = gameOver;
+}
+
+void drawCard() {
+  // Drop arm onto card
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 110);
+  delay(400);
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(500);
+  // Drag to reader
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 230);
+  analogWrite(enMotor3, 0);
+  delay(675);
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+}
+
+void dealPlayer(int playerNumber) {
+  receiverCount = 0;
+  int receiverCountMax = 0;
+  switch (playerNumber) {
+    case 0 :
+      receiverCountMax = 1;
+      break;
+    case 1 :
+      receiverCountMax = 2;
+      break;
+    case 2 :
+      receiverCountMax = 3;
+      break;
+  }
+  // swing arm to player position
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 220);
+  analogWrite(enMotor3, 0);
+  while (receiverCount < receiverCountMax) {
+    Serial.println(receiverCount);
+  }
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(300);
+  // extend arm to player
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 255);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(1100);
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(300);
+  // raise arm 
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 140);
+  delay(650);
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(300);
+  // retract arm 
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 255);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(1000);
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(300);
+  // swing to card shoe
+  receiverCount = 0;
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 210);
+  analogWrite(enMotor3, 0);
+  while (receiverCount < receiverCountMax) {
+    Serial.println(receiverCount);
+  }
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+}
+
+void dealDealer() {
+  receiverCount = 0;
+  int receiverCountMax = 2;
+  // swing arm to dealer position
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 220);
+  analogWrite(enMotor3, 0);
+  while (receiverCount < receiverCountMax) {
+    Serial.println(receiverCount);
+  }
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(300);
+  // retract arm 
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 255);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(1000);
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(300);
+  // raise arm 
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 140);
+  delay(650);
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(300);
+  // extend arm 
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 255);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(1100);
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+  delay(300);
+  // swing arm to card shoe
+  receiverCount = 0;
+  digitalWrite(motorPolarity, HIGH);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 210);
+  analogWrite(enMotor3, 0);
+  while (receiverCount < receiverCountMax) {
+    Serial.println(receiverCount);
+  }
+  digitalWrite(motorPolarity, LOW);
+  analogWrite(enMotor1, 0);
+  analogWrite(enMotor2, 0);
+  analogWrite(enMotor3, 0);
+}
+
+void receivePlayerCard(int playerNumber) {
+  int input = '0';
+  input = Serial.read();
+
+  switch (input) {
+    case '2' :
+      playerList[playerNumber].addCard(2);
+      Serial.println("Received 2");
+      break;
+    case '3' :
+      playerList[playerNumber].addCard(3);
+      Serial.println("Received 3");
+      break;
+    case '4' :
+      playerList[playerNumber].addCard(4);
+      Serial.println("Received 4");
+      break;
+    case '5' :
+      playerList[playerNumber].addCard(5);
+      Serial.println("Received 5");
+      break;
+    case '6' :
+      playerList[playerNumber].addCard(6);
+      Serial.println("Received 6");
+      break;
+    case '7' :
+      playerList[playerNumber].addCard(7);
+      Serial.println("Received 7");
+      break;
+    case '8' :
+      playerList[playerNumber].addCard(8);
+      Serial.println("Received 8");
+      break;
+    case '9' :
+      playerList[playerNumber].addCard(9);
+      Serial.println("Received 9");
+      break;
+    case 'T' :
+      playerList[playerNumber].addCard(10);
+      Serial.println("Received 10");
+      break;
+    case 'J' :
+      playerList[playerNumber].addCard(11);
+      Serial.println("Received J");
+      break;
+    case 'Q' :
+      playerList[playerNumber].addCard(12);
+      Serial.println("Received Q");
+      break;
+    case 'K' :
+      playerList[playerNumber].addCard(13);
+      Serial.println("Received K");
+      break;
+    case 'A' :
+      playerList[playerNumber].addCard(1);
+      Serial.println("Received A");
+      break;
+    default :
+      Serial.println("ERROR! Bad card read");
+      break;
   }
 }
 
