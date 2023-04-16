@@ -167,7 +167,7 @@ void loop() {
     case playerAction :
       Serial.println("Player Action State");
       for (int i = 0; i < 3; i++) {
-        if (playerList[i].getNumber() != 0) {//&& !playerList[i].getBlackjackFlag()) {
+        if (playerList[i].getNumber() != 0 && !playerList[i].getBlackjackFlag()) {
           Serial.print("Player ");
           Serial.print(playerList[i].getNumber());
           Serial.println(" turn start");
