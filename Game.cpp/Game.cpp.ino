@@ -46,8 +46,8 @@ State_Type gameState = pregame; // Current state of the game :: initialized to P
 /*************************************/
 
 /***** LCD Display Variables *********/
-LiquidCrystal_I2C lcd1(0x25, 20, 4);
-LiquidCrystal_I2C lcd2(0x23, 20, 4);
+LiquidCrystal_I2C lcd1(0x23, 20, 4);
+LiquidCrystal_I2C lcd2(0x25, 20, 4);
 LiquidCrystal_I2C lcd3(0x20, 20, 4);
 LiquidCrystal_I2C lcd4(0x27, 20, 4);
 /*************************************/
