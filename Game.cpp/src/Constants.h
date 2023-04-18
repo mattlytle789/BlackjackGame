@@ -14,8 +14,8 @@
 #define enMotor3 11 // Signal to power motor 3 height motor, pin 11
 #define motorPolarity A3 // Signal to control polarity of motors, pin A3
 #define receiver 13 // Signal from the receiver, pin 13
-#define tx 1 // transmit pin for cv module, pin 1
-#define rx 0 // receive pin for cv module, pin 0
+//#define tx 1 // transmit pin for cv module, pin 1
+//#define rx 0 // receive pin for cv module, pin 0
 #define CVout 7 // Signal to CV module, pin 7
 #define CVin 8 // Signal from the CV module, pin 8
 

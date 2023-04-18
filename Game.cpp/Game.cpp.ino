@@ -638,6 +638,7 @@ void dealerBustGameOver() {
 }
 
 void dealerBlackjackGameOver() {
+  displayDealerHand();
   for (int i = 0; i < 3; i++) {
     Serial.print("Player Total: ");
     Serial.println(playerList[i].calculateHandTotal());
