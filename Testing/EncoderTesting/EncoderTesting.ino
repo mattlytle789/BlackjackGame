@@ -1,7 +1,7 @@
 const int receiver = 13;
 int count = 0;
 volatile int receiverState = 0;
-int receiverCount = 0;
+volatile int receiverCount = 0;
 
 void setup() {
   // put your setup code here, to run once:

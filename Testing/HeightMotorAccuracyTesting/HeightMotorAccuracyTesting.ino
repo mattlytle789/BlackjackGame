@@ -1,9 +1,9 @@
 // Motor 1 : High = Out, Low = In :: Motor 2 : High = Left, Low = Right :: Motor 3 : High = Raise, Low = Lower
-const int v1 = 7; 
+const int v1 = A3; 
 const int en1 = 3; 
 const int en2 = 10;
 const int en3 = 11;
-const int startButton = 5;
+const int startButton = 9;
 
 int count = 0;
 
@@ -17,26 +17,25 @@ void setup() {
 
 void loop() {
   if (digitalRead(startButton)) {
-    //while (true) {
-      // lower arm 
+      // Lower arm 
       digitalWrite(v1, LOW);
-      analogWrite(en3, 130);
-      delay(300);
+      analogWrite(en3, 110);
+      delay(375);
       digitalWrite(v1, HIGH);
       analogWrite(en3, 0);
         
       delay(1000);
 
-      // raise arm 
+      // Raise arm 
       digitalWrite(v1, HIGH);
-      analogWrite(en3, 130);
-      delay(800);
+      analogWrite(en3, 140);
+      delay(450);
       digitalWrite(v1, LOW);
       analogWrite(en3, 0);
 
       delay(1000);
-      count++;
-      Serial.println(count);
+      //count++;
+      //Serial.println(count);
     //}
   }
 
