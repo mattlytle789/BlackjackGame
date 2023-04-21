@@ -137,7 +137,14 @@ void loop() {
         }
       }
       // for testing purposes
-      Serial.println(player1JoinedFlag);
+      for (int i = 0; i < 3; i++){
+        if (playerList[i].getNumber() > 3 || playerList[i].getNumber() < 0) {
+          playerList[i] = NULL; 
+        }
+        if (!player1JoinedFlag) {
+          playerList[0] = NULL;
+        }
+      }
       Serial.println("Players in List: ");
       for (int i = 0; i < 3; i++) {
         if (playerList[i].getNumber() != 0) {
@@ -147,6 +154,14 @@ void loop() {
       Serial.println("Pregame State Over");
 
       // transitioning to dealing state
+      for (int i = 0; i < 3; i++){
+        if (playerList[i].getNumber() > 3 || playerList[i].getNumber() < 0) {
+          playerList[i] = NULL; 
+        }
+        if (!player1JoinedFlag) {
+          playerList[0] = NULL;
+        }
+      }
       gameState = dealing;
       break;
     // Dealing state
@@ -654,7 +669,7 @@ void dealPlayer(int playerNumber) {
   // swing arm to player position
   digitalWrite(motorPolarity, LOW);
   analogWrite(enMotor1, 0);
-  analogWrite(enMotor2, 200);
+  analogWrite(enMotor2, 180);
   analogWrite(enMotor3, 0);
   while (receiverCount < receiverCountMax) {
     continue;
@@ -663,29 +678,29 @@ void dealPlayer(int playerNumber) {
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(500);
+  delay(700);
   // extend arm to player
   digitalWrite(motorPolarity, HIGH);
   analogWrite(enMotor1, 110);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(475);
+  delay(460);
   digitalWrite(motorPolarity, LOW);
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(500);
+  delay(700);
   // raise arm 
   digitalWrite(motorPolarity, HIGH);
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 140);
-  delay(520);
+  delay(560);
   digitalWrite(motorPolarity, LOW);
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(500);
+  delay(700);
   // retract arm 
   digitalWrite(motorPolarity, LOW);
   analogWrite(enMotor1, 110);
@@ -696,7 +711,7 @@ void dealPlayer(int playerNumber) {
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(500);
+  delay(700);
   returnToStart(playerNumber, receiverCountMax);
 }
 
@@ -706,7 +721,7 @@ void returnToStart(int playerNumber, int receiverCountMax) {
     receiverCount = 0;
     digitalWrite(motorPolarity, HIGH);
     analogWrite(enMotor1, 0);
-    analogWrite(enMotor2, 200);
+    analogWrite(enMotor2, 180);
     analogWrite(enMotor3, 0);
     while (receiverCount < 1) {
       continue;
@@ -715,25 +730,25 @@ void returnToStart(int playerNumber, int receiverCountMax) {
     analogWrite(enMotor1, 0);
     analogWrite(enMotor2, 0);
     analogWrite(enMotor3, 0);
-    delay(500);
+    delay(700);
     // Drag to reader
     digitalWrite(motorPolarity, LOW);
     analogWrite(enMotor1, 0);
-    analogWrite(enMotor2, 200);
+    analogWrite(enMotor2, 180);
     analogWrite(enMotor3, 0);
-    delay(480);
+    delay(440);
     digitalWrite(motorPolarity, HIGH);
     analogWrite(enMotor1, 0);
     analogWrite(enMotor2, 0);
     analogWrite(enMotor3, 0);
-    delay(500);
+    delay(700);
   } 
   else {
     // swing to player 1
     receiverCount = 0;
     digitalWrite(motorPolarity, HIGH);
     analogWrite(enMotor1, 0);
-    analogWrite(enMotor2, 210);
+    analogWrite(enMotor2, 180);
     analogWrite(enMotor3, 0);
     while (receiverCount < receiverCountMax-1) {
       continue;
@@ -742,12 +757,12 @@ void returnToStart(int playerNumber, int receiverCountMax) {
     analogWrite(enMotor1, 0);
     analogWrite(enMotor2, 0);
     analogWrite(enMotor3, 0);
-    delay(500);
+    delay(700);
     // swing to card shoe
     receiverCount = 0;
     digitalWrite(motorPolarity, HIGH);
     analogWrite(enMotor1, 0);
-    analogWrite(enMotor2, 200);
+    analogWrite(enMotor2, 180);
     analogWrite(enMotor3, 0);
     while (receiverCount < 1) {
       continue;
@@ -756,18 +771,18 @@ void returnToStart(int playerNumber, int receiverCountMax) {
     analogWrite(enMotor1, 0);
     analogWrite(enMotor2, 0);
     analogWrite(enMotor3, 0);
-    delay(500);
+    delay(700);
     // Drag to reader
     digitalWrite(motorPolarity, LOW);
     analogWrite(enMotor1, 0);
-    analogWrite(enMotor2, 200);
+    analogWrite(enMotor2, 180);
     analogWrite(enMotor3, 0);
-    delay(480);
+    delay(440);
     digitalWrite(motorPolarity, HIGH);
     analogWrite(enMotor1, 0);
     analogWrite(enMotor2, 0);
     analogWrite(enMotor3, 0);
-    delay(500);
+    delay(700);
   }
 }
 
@@ -777,7 +792,7 @@ void dealDealer() {
   // swing arm to dealer position
   digitalWrite(motorPolarity, LOW);
   analogWrite(enMotor1, 0);
-  analogWrite(enMotor2, 200);
+  analogWrite(enMotor2, 170);
   analogWrite(enMotor3, 0);
   while (receiverCount < receiverCountMax) {
     continue;
@@ -786,40 +801,40 @@ void dealDealer() {
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(500);
+  delay(700);
   // retract arm 
   digitalWrite(motorPolarity, LOW);
   analogWrite(enMotor1, 120);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(500);
+  delay(530);
   digitalWrite(motorPolarity, HIGH);
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(500);
+  delay(700);
   // raise arm 
   digitalWrite(motorPolarity, HIGH);
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 140);
-  delay(450);
+  delay(440);
   digitalWrite(motorPolarity, LOW);
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(500);
+  delay(700);
   // extend arm 
   digitalWrite(motorPolarity, HIGH);
   analogWrite(enMotor1, 110);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(400);
+  delay(290);
   digitalWrite(motorPolarity, LOW);
   analogWrite(enMotor1, 0);
   analogWrite(enMotor2, 0);
   analogWrite(enMotor3, 0);
-  delay(500);
+  delay(700);
   returnToStart(3, receiverCountMax);
 }
 
@@ -908,19 +923,21 @@ void playerBlackjack(int playerNumber) {
 
 void dealerBustGameOver() {
   for (int i = 0; i < 3; i++) {
-    Serial.print("Player Total: ");
-    Serial.println(playerList[i].calculateHandTotal());
-    Serial.print("Dealer Total: ");
-    Serial.println(playerList[3].calculateHandTotal());
-    Serial.print("Dealer Busts, Player ");
-    Serial.print(i+1);
-    Serial.println(" wins!");
-    if (playerList[i].calculateHandTotal() > 21) {
-      displayPlayerOutcome(i, "Loss");
+    if (playerList[i].getNumber() != 0) {
+      Serial.print("Player Total: ");
+      Serial.println(playerList[i].calculateHandTotal());
+      Serial.print("Dealer Total: ");
+      Serial.println(playerList[3].calculateHandTotal());
+      Serial.print("Dealer Busts, Player ");
+      Serial.print(i+1);
+      Serial.println(" wins!");
+      if (playerList[i].calculateHandTotal() > 21) {
+        displayPlayerOutcome(i, "Loss");
+      }
+      else {
+        displayPlayerOutcome(i, "Win");
+      }    
     }
-    else {
-      displayPlayerOutcome(i, "Win");
-    }    
   }
 }
 
